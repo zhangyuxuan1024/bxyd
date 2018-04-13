@@ -1,0 +1,102 @@
+package net.iclassmate.xydspace.adapter;
+
+import android.content.Context;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.contacts.GroupMember;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.view.study.ShapeImageView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by xyd on 2016/8/5.
+ */
+public class GroupMemberAdapter extends BaseAdapter
+{
+    private List<GroupMember> list = new ArrayList<GroupMember>();
+    private Context context;
+
+    public GroupMemberAdapter(List<GroupMember> list, Context context) {
+        this.list = list;
+        this.context = context;
+    }
+
+    @Override
+    public int getCount() {
+        return list.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent)
+    {
+        ViewHolder holder;
+        if(convertView == null)
+        {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_information_gridview,null);
+            holder = new ViewHolder();
+            holder.name = (TextView) convertView.findViewById(R.id.group_information_name);
+            holder.iv = (ShapeImageView) convertView.findViewById(R.id.group_information_icon_siv);
+            convertView.setTag(holder);
+        }else
+        {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        GroupMember groupMember = list.get(position);
+        if(groupMember.getUserId().equals("add"))
+        {
+//            holder.name.setVisibility(View.GONE);
+            holder.name.setText("");
+            holder.iv.setBackgroundResource(R.mipmap.ic_add_xiangqing);
+        }else if(groupMember.getUserId().equals("exit"))
+        {
+//            holder.name.setVisibility(View.GONE);
+            holder.name.setText("");
+            holder.iv.setBackgroundResource(R.mipmap.ic_minus);
+        }else
+        {
+//            holder.name.setVisibility(View.VISIBLE);
+            String name = groupMember.getRemark();
+            if(name == null || TextUtils.isEmpty(name)){
+                name = groupMember.getUserName();
+            }
+            holder.name.setText(name);
+            if(groupMember.getUserId() != null && !groupMember.getUserId().isEmpty()) {
+                String icon = String.format(Constant.STUDY_GET_USER_PIC, groupMember.getUserId());
+                Picasso.with(context).load(icon).resize((int) context.getResources().getDimension(R.dimen.view_43),
+                        (int) context.getResources().getDimension(R.dimen.view_43)).placeholder(R.mipmap.ic_liaotiantouxiang)
+                        .error(R.mipmap.ic_liaotiantouxiang).into(holder.iv);
+            }else
+            {
+                holder.iv.setBackgroundResource(R.mipmap.ic_gerenliaotianxiangqing);
+            }
+        }
+        return convertView;
+    }
+
+    class ViewHolder
+    {
+        TextView name;
+        ShapeImageView iv;
+    }
+}

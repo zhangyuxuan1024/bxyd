@@ -1,0 +1,172 @@
+package net.iclassmate.bxyd.adapter;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.bxyd.R;
+import net.iclassmate.bxyd.bean.message.Auth;
+import net.iclassmate.bxyd.bean.message.RMessage;
+import net.iclassmate.bxyd.constant.Constant;
+import net.iclassmate.bxyd.rongCloud.RongCloudContext;
+import net.iclassmate.bxyd.utils.DataCallback;
+import net.iclassmate.bxyd.utils.FileUtils;
+import net.iclassmate.bxyd.utils.HttpManager;
+import net.iclassmate.bxyd.utils.NetWorkUtils;
+import net.iclassmate.bxyd.utils.UIUtils;
+import net.iclassmate.bxyd.view.study.ShapeImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Message;
+import io.rong.message.TextMessage;
+
+/**
+ * Created by xyd on 2016/6/23.
+ */
+public class AddFriendAdapter extends BaseAdapter {
+    private ArrayList<Message> list;
+    private Context mContext;
+    private HttpManager httpManager;
+    private String name, requestName;
+    private SharedPreferences sp;
+    private Activity activity;
+    private DataCallback dataCallback;
+    private View.OnClickListener btnAgreeClick;
+    private Handler mHandler = new Handler();
+
+    public void setBtnAgreeClick(View.OnClickListener btnAgreeClick) {
+        this.btnAgreeClick = btnAgreeClick;
+    }
+
+    public AddFriendAdapter(ArrayList<Message> list, Context mContext, HttpManager httpManager, Activity activity, DataCallback dataCallback) {
+        this.list = list;
+        this.mContext = mContext;
+        this.httpManager = httpManager;
+        this.activity = activity;
+        this.dataCallback = dataCallback;
+        sp = mContext.getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        name = sp.getString(Constant.USER_NAME, "");
+    }
+
+    @Override
+    public int getCount() {
+        return list.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ViewHolder holder = null;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.item_add_contacts, null);
+            holder = new ViewHolder();
+            holder.name = (TextView) convertView.findViewById(R.id.add_contacts_list_name);
+            holder.message = (TextView) convertView.findViewById(R.id.add_contacts_list_message);
+            holder.tv = (TextView) convertView.findViewById(R.id.add_contacts_list_tv);
+            holder.agree = (Button) convertView.findViewById(R.id.add_contacts_list_agree_btn);
+            holder.agreed = (TextView) convertView.findViewById(R.id.add_contacts_list_agreed);
+            holder.icon = (ShapeImageView) convertView.findViewById(R.id.add_contacts_list_icon);
+            holder.tv_time = (TextView) convertView.findViewById(R.id.add_contacts_list_time);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        Message message = list.get(position);
+        if (message.getSentStatus() == Message.SentStatus.RECEIVED) {
+            holder.agree.setVisibility(View.GONE);
+            holder.agreed.setVisibility(View.VISIBLE);
+        }
+        RMessage rMessage = new RMessage(message);
+        Auth auth = rMessage.getAuth();
+        if (auth != null) {
+            holder.tv.setText("申请加入" + auth.getSpaceName() + "空间");
+            holder.name.setText(auth.getUserName());
+            holder.message.setText(auth.getContent());
+            setUImage(holder.icon, auth.getUserId());
+        } else {
+            holder.tv.setText("申请加你为好友");
+            if (message.getContent() instanceof TextMessage) {
+                TextMessage textMessage = (TextMessage) list.get(position).getContent();
+                String info = textMessage.getContent();
+                if (!info.equals("")) {
+                    try {
+                        JSONObject json = new JSONObject(info);
+                        String content = json.getString("Content");
+                        requestName = json.getString("requestName");
+                        long time = json.optLong("CreateTime");
+                        holder.message.setText(content);
+                        holder.name.setText(requestName);
+                        if (time > 0) {
+                            holder.tv_time.setText(FileUtils.getTime(time + ""));
+                        }
+                        setUImage(holder.icon, message.getSenderUserId());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        holder.agree.setTag(position);
+        holder.agree.setOnClickListener(btnAgreeClick);
+        return convertView;
+    }
+
+    private void setUImage(final ShapeImageView icon, final String userId) {
+        icon.setTag(userId);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final String url = httpManager.getUserIconUrl(userId);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        String tag = (String) icon.getTag();
+                        if (tag != null && tag.equals(userId)) {
+                            if (tag == null || tag.equals("") || userId == null || userId.equals("") || url == null || url.equals("")) {
+                                icon.setImageResource(R.mipmap.ic_head_wode);
+                            } else if (tag.equals(userId)) {
+                                Picasso.with(mContext).load(url).resize((int) mContext.getResources().getDimension(R.dimen.view_34),
+                                        (int) mContext.getResources().getDimension(R.dimen.view_34))
+                                        .placeholder(R.mipmap.ic_head_wode).config(Bitmap.Config.RGB_565).into(icon);
+                            }
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private class ViewHolder {
+        public ShapeImageView icon;
+        public TextView message, tv, name, agreed, tv_time;
+        public Button agree;
+    }
+}

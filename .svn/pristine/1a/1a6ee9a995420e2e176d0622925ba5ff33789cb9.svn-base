@@ -1,0 +1,398 @@
+package net.iclassmate.xydspace.ui.activitys.chat;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.ui.fragment.emotion.EmotionMainFragment;
+import net.iclassmate.xydspace.utils.NetWorkUtils;
+import net.iclassmate.xydspace.utils.SendLastMessage;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.utils.UTCTime;
+import net.iclassmate.xydspace.view.TitleBar;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
+import io.rong.message.ImageMessage;
+import io.rong.message.TextMessage;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class ChatActivity extends FragmentActivity implements TitleBar.TitleOnClickListener, SendLastMessage {
+    private String TAG = ChatActivity.class.getSimpleName();
+    private ListView messageBody;
+    private LinearLayout chat_root_layout;
+    private TitleBar titleBar;
+    private Context mContext;
+    private String targetId, name, iconUrl;
+    private String from;
+    private Conversation messageInfo;
+    private Conversation.ConversationType type;
+    public EmotionMainFragment emotionMainFragment;
+    private SharedPreferences sharedPreferences;
+    private String time;
+    private List<Message> timeList;
+    private final int NO_INTERNET = 0;  //没网
+    private static final int FIND_RECORD_TIME_SUCCEED = 1;  //根据时间日期获取聊天记录成功
+
+    //最后一条消息的id
+    private int last_message_id;
+    private long last_click_time;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case NO_INTERNET:
+                    Toast.makeText(UIUtils.getContext(), "您没有连接网络，请连接后重试！", Toast.LENGTH_SHORT).show();
+                    break;
+                case FIND_RECORD_TIME_SUCCEED:
+//                    Log.i("TAG", "vvvvvvvvvvvvvvvvvvvvvv:" + timeList.size());
+//                    Log.i("TAG", "//////////////////////:" + emotionMainFragment);
+                    emotionMainFragment.updateAdapter(timeList);
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        from = getIntent().getStringExtra("from");
+        if (from.equals("RecordCalendarActivity")) {
+            name = getIntent().getStringExtra("name");
+            targetId = getIntent().getStringExtra("targetId");
+            time = getIntent().getStringExtra("time");
+//            Log.i("TAG", "timetimetimetimetimetimetimetime:" + time + "/");
+            titleBar.setTitle(name);
+            type = Conversation.ConversationType.PRIVATE;
+            initTimeMessage();
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_chat);
+        mContext = this;
+        if (!NetWorkUtils.isNetworkAvailable(mContext)) {
+            Toast.makeText(mContext, mContext.getResources().getString(R.string.alert_msg_check_net), Toast.LENGTH_SHORT).show();
+        }
+        initView();
+        setupUI(chat_root_layout);
+        initDatas();
+    }
+
+    /**
+     * 软键盘和表情图的隐藏
+     *
+     * @param view 跟布局
+     * @author LvZhangFeng
+     * @time 2016年8月6日17点
+     */
+    public void setupUI(View view) {
+        if (!(view instanceof EditText)) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    emotionMainFragment.mkeyboard.hideEmotionLayout(false);
+                    emotionMainFragment.mkeyboard.hideSoftInput();
+                    return false;
+                }
+            });
+        }
+
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupUI(innerView);
+            }
+        }
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.chat_title_bar);
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui, "消息");
+        titleBar.setRightIcon(R.mipmap.ic_gerenxiangqing);
+        titleBar.setTitleClickListener(this);
+//        titleBar.setRightVisibility(View.INVISIBLE);
+        messageBody = (ListView) findViewById(R.id.messagebody);
+        chat_root_layout = (LinearLayout) findViewById(R.id.chat_root_layout);
+
+        sharedPreferences = getSharedPreferences(Constant.SHARED_PREFERENCES, MODE_PRIVATE);
+    }
+
+
+    private void initDatas() {
+        from = getIntent().getStringExtra("from");
+        if (from.equals("MessageFragment")) {
+            messageInfo = getIntent().getParcelableExtra("message");
+            if (messageInfo != null) {
+                targetId = messageInfo.getTargetId();
+//                name = emotionMainFragment.messagesAdapter.friendName;
+                iconUrl = String.format(Constant.STUDY_GET_USER_PIC, targetId);
+                titleBar.setTitle(messageInfo.getConversationTitle());
+            }
+        } else if (from.equals("RecordCalendarActivity")) {
+            name = getIntent().getStringExtra("name");
+            targetId = getIntent().getStringExtra("targetId");
+            time = getIntent().getStringExtra("time");
+//            Log.i("TAG", "timetimetimetimetimetimetimetime:" + time + "/");
+            titleBar.setTitle(name);
+            type = Conversation.ConversationType.PRIVATE;
+//            initTimeMessage();
+        } else {
+            targetId = getIntent().getStringExtra("targetId");
+            type = (Conversation.ConversationType) getIntent().getSerializableExtra("type");
+            name = getIntent().getStringExtra("name");
+            iconUrl = getIntent().getStringExtra("iconUrl");
+            titleBar.setTitle(name);
+        }
+        //设置标题
+        if (targetId != null && !targetId.equals("")) {
+            setTitleBar();
+        }
+        initEmotionMainFragment();
+        messageBody.setSelection(messageBody.getBottom());
+        emotionMainFragment.setSendLastMessage(this);
+    }
+
+    //设置标题
+    private void setTitleBar() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String url = "";
+                String uid = sharedPreferences.getString(Constant.ID_USER, "");
+                url = String.format(Constant.MESSAGE_FIND_REMARK_NAME, uid, targetId);
+                OkHttpClient client = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            final String result = response.body().string();
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    String sname = result;
+                                    try {
+                                        JSONObject object = new JSONObject(sname);
+                                        sname = object.optString("remark");
+                                        if (sname != null) {
+                                            titleBar.setTitle(sname);
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * 初始化表情面板
+     */
+    public void initEmotionMainFragment() {
+        //构建传递参数
+        Bundle bundle = new Bundle();
+        //绑定主内容编辑框
+        bundle.putBoolean(EmotionMainFragment.BIND_TO_EDITTEXT, true);
+        //隐藏控件
+        bundle.putBoolean(EmotionMainFragment.HIDE_BAR_EDITTEXT_AND_BTN, false);
+        //传递消息参数
+        if (messageInfo != null) {
+            bundle.putString("from", from);
+            bundle.putParcelable("message", messageInfo);
+        } else {
+            bundle.putString("from", from);
+            bundle.putString("targetId", targetId);
+            bundle.putSerializable("type", type);
+            bundle.putString("name", name);
+        }
+        //替换fragment
+        //创建修改实例
+        emotionMainFragment = EmotionMainFragment.newInstance(EmotionMainFragment.class, bundle);
+        emotionMainFragment.bindToContentView(messageBody);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fl_emotionview_main, emotionMainFragment);
+        transaction.addToBackStack(null);
+        //提交修改
+        transaction.commit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 17) {
+            emotionMainFragment.messageList.clear();
+            emotionMainFragment.messagesAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void leftClick() {
+        close();
+    }
+
+    @Override
+    public void onBackPressed() {
+        close();
+    }
+
+    private void close() {
+        Intent intent = new Intent();
+        setResult(1, intent);
+        intent.putExtra("update", true);
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+        if (System.currentTimeMillis() - last_click_time < 3000) {
+            return;
+        }
+        last_click_time = System.currentTimeMillis();
+
+        Intent intent = new Intent(UIUtils.getContext(), ChatInformationActivity.class);
+        if (from.equals("MessageFragment") && messageInfo != null) {
+            name = emotionMainFragment.messagesAdapter.friendName;
+        }
+        intent.putExtra("from", "person");
+        intent.putExtra("name", name);
+        intent.putExtra("iconUrl", iconUrl);
+        intent.putExtra("targetId", targetId);
+        startActivityForResult(intent, 17);
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_BACK) {
+//            finish();
+//            return false;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
+
+    @Override
+    public void sendMessageId(int msgId) {
+        last_message_id = msgId;
+    }
+
+    /**
+     * 根据时间日期获取聊天记录
+     */
+    public void initTimeMessage() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (NetWorkUtils.isNetworkAvailable(UIUtils.getContext())) {
+                    RongIMClient.getInstance().getLatestMessages(type, targetId, 500, new RongIMClient.ResultCallback<List<Message>>() {
+                        @Override
+                        public void onSuccess(List<Message> messageList) {
+//                            Log.i("TAG", "1获取的聊天记录是:" + messageList.size());
+                            if (messageList != null) {
+                                timeList = new ArrayList<Message>();
+                                for (Message message : messageList) {
+                                    String messageTime = UTCTime.getTime(message.getReceivedTime());
+                                    if (messageTime.contains(time)) {
+                                        if (message.getContent() instanceof TextMessage) {
+                                            TextMessage textMessage = (TextMessage) message.getContent();
+                                            String info = textMessage.getContent();
+                                            try {
+                                                JSONObject json = new JSONObject(info);
+                                                int messageType = json.optInt("MessageType");
+                                                if (messageType == 0) {
+                                                    timeList.add(message);
+                                                }
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else if (message.getContent() instanceof ImageMessage) {
+                                            timeList.add(message);
+                                        }
+                                    }
+                                }
+//                                Log.i("TAG", "2获取的聊天记录是:"+timeList.size());
+                                mHandler.sendEmptyMessage(FIND_RECORD_TIME_SUCCEED);
+                            }
+                        }
+
+                        @Override
+                        public void onError(RongIMClient.ErrorCode errorCode) {
+
+                        }
+                    });
+                } else {
+                    mHandler.sendEmptyMessage(NO_INTERNET);
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
+}

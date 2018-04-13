@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ebebeb"
+    android:orientation="vertical"
+    tools:context=".ui.activity.chat.ChatActivity">
+
+    <net.iclassmate.xydspace.view.TitleBar
+        android:id="@+id/chat_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height" />
+
+    <ListView
+        android:id="@+id/messagebody"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:divider="@null"
+        android:listSelector="#ebebeb" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#e2e2e2" />
+
+    <FrameLayout
+        android:id="@+id/fl_emotionview_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <!--    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:orientation="horizontal"
+            android:background="#f8f8f8"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical" >
+            <Button
+                android:id="@+id/chat_voice_message"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:background="@drawable/chat_spoken_image_selector"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="6dp"/>
+
+            <EditText
+                android:id="@+id/chat_message"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@mipmap/img_shuru_xiaoxi"
+                android:paddingLeft="6dp"
+                android:maxLines="3"
+                android:ems="10"
+                android:textSize="14sp"/>
+            <Button
+                android:id="@+id/chat_emotion"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/chat_emotion_image_selector"
+                android:textColor="@android:color/white"
+                />
+            <Button
+                android:id="@+id/chat_more"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginRight="15dp"
+                android:background="@drawable/chat_more_image_selector"
+                android:textColor="@android:color/white"
+                />
+
+            <Button
+                android:id="@+id/send_message"
+                android:layout_width="40dp"
+                android:layout_height="32dp"
+                android:layout_marginRight="6dp"
+                android:background="@drawable/chat_send_button_selector"
+                android:visibility="gone"
+                />
+        </LinearLayout>-->
+
+</LinearLayout>

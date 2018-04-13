@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f9"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#393f4f">
+
+        <ImageView
+            android:id="@+id/boundphonenum_iv_back"
+            android:layout_width="10dp"
+            android:layout_height="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_fanhui" />
+
+        <TextView
+            android:id="@+id/boundphonenum_tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="20.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6.5dp"
+            android:layout_toRightOf="@+id/boundphonenum_iv_back"
+            android:text="返回"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="绑定新手机号"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44.5dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/boundphonenum_iv_phone"
+            android:layout_width="10dp"
+            android:layout_height="13dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_phone" />
+
+        <TextView
+            android:id="@+id/boundphonenum_tv_phone"
+            style="@style/boundphonenum_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="7.5dp"
+            android:layout_toRightOf="@+id/boundphonenum_iv_phone"
+            android:text="手    机" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="32.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/boundphonenum_tv_phone"
+            android:background="#ccccd2" />
+
+        <EditText
+            android:id="@+id/boundphonenum_et_phone"
+            style="@style/boundphonenum_hint"
+            android:layout_width="match_parent"
+            android:layout_height="45.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toLeftOf="@+id/boundphonenum_rl_phone_cross"
+            android:layout_toRightOf="@+id/boundphonenum_tv_phone"
+            android:background="@null"
+            android:hint="请输入新手机号"
+            android:maxLength="11" />
+
+        <RelativeLayout
+            android:id="@+id/boundphonenum_rl_phone_cross"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true">
+
+            <ImageView
+                android:id="@+id/boundphonenum_iv_phone_cross"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"
+                android:src="@mipmap/ic_cross" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44.5dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/boundphonenum_iv_password"
+            android:layout_width="10dp"
+            android:layout_height="13dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_mima" />
+
+        <TextView
+            android:id="@+id/boundphonenum_tv_password"
+            style="@style/boundphonenum_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="7.5dp"
+            android:layout_toRightOf="@+id/boundphonenum_iv_password"
+            android:text="密    码" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="32.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/boundphonenum_tv_password"
+            android:background="#ccccd2" />
+
+        <EditText
+            android:id="@+id/boundphonenum_et_password"
+            style="@style/boundphonenum_hint"
+            android:layout_width="match_parent"
+            android:layout_height="45.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/boundphonenum_tv_password"
+            android:layout_toLeftOf="@+id/boundphonenum_rl_password_cross"
+            android:background="@null"
+            android:hint="6-12位字符组合，区分大小写"
+            android:maxLength="12" />
+
+        <RelativeLayout
+            android:id="@+id/boundphonenum_rl_password_cross"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true">
+
+            <ImageView
+                android:id="@+id/boundphonenum_iv_password_cross"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_centerInParent="true"
+                android:visibility="invisible"
+                android:src="@mipmap/ic_cross" />
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44.5dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/boundphonenum_iv_verification"
+            android:layout_width="10dp"
+            android:layout_height="13dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_verification" />
+
+        <TextView
+            android:id="@+id/boundphonenum_tv_verification"
+            style="@style/boundphonenum_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="7.5dp"
+            android:layout_toRightOf="@+id/boundphonenum_iv_verification"
+            android:text="验证码" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="32.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/boundphonenum_tv_verification"
+            android:background="#ccccd2" />
+
+        <EditText
+            android:id="@+id/boundphonenum_et_verification"
+            style="@style/boundphonenum_hint"
+            android:layout_width="match_parent"
+            android:layout_height="44.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toLeftOf="@+id/boundphonenum_iv_huoqu_pressed"
+            android:layout_toRightOf="@+id/boundphonenum_tv_verification"
+            android:background="@null"
+            android:hint="请输入验证码" />
+
+        <Button
+            android:id="@+id/boundphonenum_iv_huoqu_pressed"
+            android:layout_width="73dp"
+            android:layout_height="24.5dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@mipmap/bt_huoqu_pressed"
+            android:layout_marginRight="15dp" />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/boundphonenum_iv_submit"
+        android:layout_width="345dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="41.5dp"
+        android:src="@drawable/sure_selector" />
+
+
+</LinearLayout>

@@ -1,0 +1,15 @@
+package net.iclassmate.xydspace.ui.activity.chat;
+
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+
+import net.iclassmate.xydspace.R;
+
+public class GroupChatActivity extends FragmentActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_group_chat);
+    }
+}

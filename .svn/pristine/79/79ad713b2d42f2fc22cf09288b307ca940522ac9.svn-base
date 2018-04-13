@@ -1,0 +1,40 @@
+package net.iclassmate.xydspace.ui.activity.owner;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import net.iclassmate.xydspace.R;
+
+/**
+ * Created by xydbj on 2016.6.21.
+ */
+public class ServiceAgreementActivity extends Activity implements View.OnClickListener{
+    private ImageView serviceagreement_iv_back;
+    private TextView serviceagreement_tv_back;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_serviceagreement);
+        initView();
+    }
+    public void initView(){
+        serviceagreement_iv_back = (ImageView) findViewById(R.id.serviceagreement_iv_back);
+        serviceagreement_tv_back = (TextView) findViewById(R.id.serviceagreement_tv_back);
+
+        serviceagreement_tv_back.setOnClickListener(this);
+        serviceagreement_iv_back.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.serviceagreement_tv_back:
+            case R.id.serviceagreement_iv_back:
+                finish();
+                break;
+        }
+    }
+}

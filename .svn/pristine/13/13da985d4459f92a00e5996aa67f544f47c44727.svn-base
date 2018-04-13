@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ll_discussion"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ebebeb"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.xydspace.ui.activitys.chat.GroupChatActivity">
+
+    <net.iclassmate.xydspace.view.TitleBar
+        android:id="@+id/discussion_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/discussion_messagebody"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="2dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:divider="@null"
+                android:listSelector="#ebebeb"
+                android:scrollbars="none"
+                android:transcriptMode="alwaysScroll" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#e2e2e2" />
+
+            <FrameLayout
+                android:id="@+id/discussion_fl_emotionview_main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/discussion_noLoading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffffff"
+            android:visibility="invisible">
+
+            <ImageView
+                android:id="@+id/iv_record_info_loading"
+                android:layout_width="@dimen/anim_width"
+                android:layout_height="@dimen/anim_height"
+                android:layout_centerInParent="true"
+                android:background="@drawable/loading_animation"
+                android:scaleType="centerInside" />
+        </RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>

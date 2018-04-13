@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#393f4f">
+
+        <ImageView
+            android:id="@+id/netdisk2_iv_back"
+            android:layout_width="10dp"
+            android:layout_height="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_fanhui" />
+
+        <TextView
+            android:id="@+id/netdisk2_tv_back"
+            android:layout_width="60dp"
+            android:layout_height="30.5dp"
+            android:gravity="center|left"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6.5dp"
+            android:layout_toRightOf="@+id/netdisk2_iv_back"
+            android:text="返回"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/netdisk2_tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/netdisk2_tv_back"
+            android:layout_toLeftOf="@+id/netdisk2_tv_selector"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:text="网盘"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/netdisk2_tv_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:paddingLeft="15dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingRight="15dp"
+            android:text="选择"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true"
+                android:scrollbars="none">
+
+                <net.iclassmate.bxyd.view.FullListView
+                    android:id="@+id/netdisk2_mylistview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:divider="#efefef"
+                    android:dividerHeight="0.5dp">
+
+                </net.iclassmate.bxyd.view.FullListView>
+
+            </ScrollView>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/netdisk2_ll_four_selector"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="#393f4f"
+            android:layout_gravity="bottom"
+            android:visibility="invisible"
+            android:weightSum="4">
+
+            <ImageView
+                android:id="@+id/item_four_selector_faxuexiquan2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="23.5dp"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_fabu_wangpan" />
+
+            <ImageView
+                android:id="@+id/item_four_selector_zhuanfa2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="23.5dp"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_zhuanfa" />
+
+            <ImageView
+                android:id="@+id/item_four_selector_download2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="23.5dp"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_download_wangpan" />
+
+
+            <ImageView
+                android:id="@+id/item_four_selector_shanchu2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="24.5dp"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_shanchu" />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/netdisk2_iv_chuanshuliebiao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_chuanshuliebiao"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="70dp"
+            android:layout_marginRight="25dp"/>
+        <ImageView
+            android:id="@+id/netdisk2_iv_jiahao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_shangchuanjiahao_wangpan"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="25dp"
+            android:layout_marginBottom="140dp" />
+        <ImageView
+            android:id="@+id/netdisk2_iv_loading"
+            android:layout_width="@dimen/anim_width"
+            android:layout_height="@dimen/anim_height"
+            android:layout_gravity="center"
+            android:background="@drawable/loading_animation"
+            android:scaleType="centerInside"/>
+    </FrameLayout>
+</LinearLayout>

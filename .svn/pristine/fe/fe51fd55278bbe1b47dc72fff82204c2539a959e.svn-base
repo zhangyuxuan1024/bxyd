@@ -1,0 +1,61 @@
+package net.iclassmate.xydspace.ui.activity.chat;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.ui.activity.other.RecordCalendarActivity;
+import net.iclassmate.xydspace.utils.UIUtils;
+
+public class ChatRecordActivity extends FragmentActivity implements View.OnClickListener{
+
+    private Context mContext;
+    private Button btn_date;
+    private TextView tv_cancel;
+    private EditText record_search;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_chat_record);
+        mContext=this;
+        initView();
+        initData();
+        initListener();
+    }
+
+    private void initView() {
+        btn_date= (Button) findViewById(R.id.chat_record_byDate);
+        tv_cancel= (TextView) findViewById(R.id.chat_record_cancel);
+        record_search= (EditText) findViewById(R.id.chat_record_search);
+    }
+
+    private void initData() {
+
+    }
+
+    private void initListener() {
+        btn_date.setOnClickListener(this);
+        tv_cancel.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.chat_record_byDate:
+                Intent toDate=new Intent(UIUtils.getContext(), RecordCalendarActivity.class);
+                startActivity(toDate);
+                break;
+            case R.id.chat_record_cancel:
+                finish();
+                break;
+        }
+    }
+}

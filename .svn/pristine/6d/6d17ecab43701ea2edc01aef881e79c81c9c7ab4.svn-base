@@ -1,0 +1,406 @@
+package net.iclassmate.xydspace.ui.activity.constacts;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.contacts.FriendInfo;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.ui.activity.information.FriendInformationActivity;
+import net.iclassmate.xydspace.utils.HttpManager;
+import net.iclassmate.xydspace.utils.JsonUtils;
+import net.iclassmate.xydspace.utils.NetWorkUtils;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.IndexBar;
+import net.iclassmate.xydspace.view.Loading;
+import net.iclassmate.xydspace.view.TitleBar;
+import net.iclassmate.xydspace.view.study.ShapeImageView;
+import net.sourceforge.pinyin4j.PinyinHelper;
+import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
+import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+import net.sourceforge.pinyin4j.format.exception.BadHanyuPinyinOutputFormatCombination;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+/**
+ * 通讯录界面
+ */
+public class ContactsActivity extends Activity implements TitleBar.TitleOnClickListener, View.OnClickListener {
+    private TitleBar titleBar;
+    private Context mContext;
+    private char sortKey;
+    private IndexBar bar;
+    private ListView lv;
+    private TextView tvShow, tv_chat, tv_group;
+    private String userId;
+    private String result, resultGroup;
+    private Loading loading;
+    private RelativeLayout groupNext;
+    private HttpManager httpManager;
+    private SharedPreferences sp;
+    public final static int FINDE_FRIENDS_SUCCEED = 1;
+    public final static int FINDE_FRIENDS_FAIL = 2;
+    private ArrayList<FriendInfo> friendInfos;
+
+    public static final int REQ_FRI = 1;
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case FINDE_FRIENDS_SUCCEED:
+                    loading.hideLoading(false);
+                    friendInfos = JsonUtils.jsonFriendInfo(result);
+                    if (friendInfos == null || friendInfos.size() < 1) {
+                        return;
+                    }
+                    for (int j = 0; j < friendInfos.size(); j++) {
+                        FriendInfo friendInfo = friendInfos.get(j);
+                        String remark = friendInfo.getRemark();
+                        if (remark == null || remark.equals("") || remark.equals("null")) {
+                            remark = friendInfo.getUserName();
+                        }
+                        remark = remark.toUpperCase();
+
+                        char ch = ' ';
+                        if (remark != null && remark.length() > 0) {
+                            ch = remark.toUpperCase().charAt(0);
+                            //字母
+                            if (ch >= 'A' && ch <= 'Z') {
+                                friendInfo.sortKey = ch;
+                            } else {
+                                //中文
+                                char[] c = remark.toCharArray();
+                                HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
+                                // UPPERCASE：大写  (ZHONG)LOWERCASE：小写  (zhong)
+                                format.setCaseType(HanyuPinyinCaseType.UPPERCASE);
+                                format.setToneType(HanyuPinyinToneType.WITH_TONE_MARK);
+                                format.setVCharType(HanyuPinyinVCharType.WITH_U_UNICODE);
+                                try {
+                                    String[] pinyin = PinyinHelper.toHanyuPinyinStringArray(c[0], format);
+                                    if (pinyin.length > 0) {
+                                        char[] cc = pinyin[0].toCharArray();
+                                        ch = cc[0];
+                                        friendInfo.sortKey = ch;
+                                    } else {
+                                        friendInfo.sortKey = '#';
+                                    }
+                                } catch (BadHanyuPinyinOutputFormatCombination badHanyuPinyinOutputFormatCombination) {
+                                    badHanyuPinyinOutputFormatCombination.printStackTrace();
+                                }
+                            }
+                        } else {
+                            friendInfo.sortKey = '#';
+                        }
+                        friendInfos.set(j, friendInfo);
+                    }
+
+                    //排序
+                    for (int i = 0; i < friendInfos.size() - 1; i++) {
+                        for (int j = 0; j < friendInfos.size() - 1 - i; j++) {
+                            FriendInfo friendInfo1 = friendInfos.get(j);
+                            FriendInfo friendInfo2 = friendInfos.get(j + 1);
+                            if (friendInfo1.sortKey > friendInfo2.sortKey) {
+                                friendInfos.set(j, friendInfo2);
+                                friendInfos.set(j + 1, friendInfo1);
+                            }
+                        }
+                    }
+
+                    //添加字母
+                    FriendInfo friendInfo = friendInfos.get(0);
+                    friendInfo.isHead = true;
+                    friendInfos.set(0, friendInfo);
+                    for (int i = 1; i < friendInfos.size(); i++) {
+                        FriendInfo friendInfo1 = friendInfos.get(i - 1);
+                        FriendInfo friendInfo2 = friendInfos.get(i);
+                        if (friendInfo2.sortKey > friendInfo1.sortKey) {
+                            friendInfo2.isHead = true;
+                        } else {
+                            friendInfo2.isHead = false;
+                        }
+                        friendInfos.set(i, friendInfo2);
+                    }
+
+                    lv.setAdapter(new MyAdapter());
+                    break;
+                case FINDE_FRIENDS_FAIL:
+                    loading.hideLoading(false);
+                    Toast.makeText(UIUtils.getContext(), "好友列表加载失败", Toast.LENGTH_SHORT).show();
+                    break;
+                //获取群组个数
+                case 3:
+                    try {
+                        JSONObject object = new JSONObject(resultGroup);
+                        int chatNum = object.getInt("chatNum");
+                        int groupNum = object.getInt("groupNum");
+                        tv_chat.setText(groupNum + "个群组");
+                        tv_group.setText(chatNum + "个群聊");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_contacts);
+
+        mContext = this;
+//        initPhoneNumber();
+        initView();
+        initData();
+        initLinstener();
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.contacts_title_bar);
+        bar = (IndexBar) findViewById(R.id.contacts_lb);
+        tvShow = (TextView) findViewById(R.id.contacts_tvShow);
+        groupNext = (RelativeLayout) findViewById(R.id.contacts_group_layout);
+        httpManager = new HttpManager();
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui, "消息");
+        titleBar.setTitle("通讯录");
+        titleBar.setRightIcon(R.mipmap.ic_jiahaoyou);
+        sp = mContext.getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        loading = new Loading(findViewById(R.id.loading_layout), (RelativeLayout) findViewById(R.id.cont_noLoading));
+        lv = getListView();
+
+        tv_chat = (TextView) findViewById(R.id.contacts_group_count);
+        tv_group = (TextView) findViewById(R.id.contacts_discussion_count);
+    }
+
+    private void initData() {
+        userId = sp.getString(Constant.ID_USER, "");
+        loading.showLoading(false);
+
+        if (!NetWorkUtils.isNetworkAvailable(UIUtils.getContext())) {
+            Toast.makeText(mContext, getResources().getString(R.string.alert_msg_check_net), Toast.LENGTH_SHORT).show();
+            loading.hideLoading(false);
+            return;
+        }
+        //请好友列表
+        if (!userId.equals("")) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    result = httpManager.findAllFriends(userId);
+                    if (result != null && !result.equals("404")) {
+                        handler.sendEmptyMessage(FINDE_FRIENDS_SUCCEED);
+                    } else {
+                        handler.sendEmptyMessage(FINDE_FRIENDS_FAIL);
+                    }
+                }
+            }).start();
+        }
+
+        //获取群组数量
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                resultGroup = httpManager.getGroupNum(userId);
+                if (resultGroup != null && !resultGroup.equals("404")) {
+                    handler.sendEmptyMessage(3);
+                }
+            }
+        }).start();
+    }
+
+    private void initLinstener() {
+        titleBar.setTitleClickListener(this);
+        groupNext.setOnClickListener(this);
+        bar.setOnIndexSelectedListener(new IndexBar.OnIndexSelectedListener() {
+            @Override
+            public void indexSelected(char index) {
+                tvShow.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void indexChange(char index) {
+                tvShow.setVisibility(View.VISIBLE);
+                tvShow.setText(index + "");
+                for (int i = 0; i < friendInfos.size(); i++) {
+                    if (friendInfos.get(i).isHead && friendInfos.get(i).sortKey == index) {
+                        lv.setSelection(i);
+                        return;
+                    }
+                }
+                for (int i = 0; i < friendInfos.size(); i++) {
+                    if (friendInfos.get(i).isHead && friendInfos.get(i).sortKey > index) {
+                        lv.setSelection(i);
+                        return;
+                    }
+                }
+                lv.setSelection(friendInfos.size() - 1);
+            }
+        });
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent queryInfo = new Intent(UIUtils.getContext(), FriendInformationActivity.class);
+                queryInfo.putExtra("from", "ContactsActivity");
+                queryInfo.putExtra("friendId", friendInfos.get(position).getFriendId());
+                startActivityForResult(queryInfo, REQ_FRI);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_FRI) {
+                if (friendInfos != null) {
+                    friendInfos.clear();
+                }
+                initData();
+            }
+        }
+    }
+
+    @Override
+    public void leftClick() {
+        close();
+    }
+
+    @Override
+    public void onBackPressed() {
+        close();
+    }
+
+    private void close() {
+        Intent intent = new Intent();
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+        Intent intent = new Intent(ContactsActivity.this, AddFriendActivity.class);
+        startActivityForResult(intent, REQ_FRI);
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.contacts_group_layout:
+                Intent intent = new Intent(ContactsActivity.this, GroupListActivity.class);
+                startActivity(intent);
+                break;
+        }
+
+    }
+
+    public ListView getListView() {
+        return (ListView) findViewById(R.id.contacts_lv);
+    }
+
+    class MyAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            int ret = 0;
+            if (friendInfos != null) {
+                ret = friendInfos.size();
+            }
+            return ret;
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return friendInfos.get(i);
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return arg0;
+        }
+
+        class ViewHolder {
+            TextView tvName;
+            ImageView imageIcon;
+        }
+
+
+        @Override
+        public View getView(int i, View v, ViewGroup vg) {
+            ViewHolder holder = null;
+            if (v == null) {
+                v = LayoutInflater.from(mContext).inflate(R.layout.contacts_item, null);
+                holder = new ViewHolder();
+                holder.tvName = (TextView) v.findViewById(R.id.contacts_person_name);
+                holder.imageIcon = (ShapeImageView) v.findViewById(R.id.contacts_person_icon);
+                v.setTag(holder);
+            } else {
+                holder = (ViewHolder) v.getTag();
+            }
+
+            String name = friendInfos.get(i).getRemark().trim();
+            if (name != null && !TextUtils.isEmpty(name) && !name.equals("null") && !name.equals("NULL")) {
+                holder.tvName.setText(name);
+            } else {
+                name = friendInfos.get(i).getUserName();
+                holder.tvName.setText(name);
+            }
+
+            String iconUrl = String.format(Constant.STUDY_GET_USER_PIC, friendInfos.get(i).getFriendId());
+            Picasso.with(mContext).load(iconUrl).resize((int) getResources().getDimension(R.dimen.view_34), (int) getResources().getDimension(R.dimen.view_34))
+                    .placeholder(R.mipmap.ic_head_wode).config(Bitmap.Config.RGB_565).into(holder.imageIcon);
+
+            if (friendInfos.get(i).isHead) {
+                v.findViewById(R.id.llShowIndex).setVisibility(View.VISIBLE);
+                ((TextView) v.findViewById(R.id.tvIndex)).setText("" + friendInfos.get(i).sortKey);
+            } else {
+                v.findViewById(R.id.llShowIndex).setVisibility(View.GONE);
+            }
+            return v;
+        }
+
+    }
+}
+
+

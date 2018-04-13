@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#ffffff">
+        
+        <net.iclassmate.xydspace.view.study.ShapeImageView
+            android:id="@+id/item_record_iv"
+            android:layout_width="32.5dp"
+            android:layout_height="32.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:background="@mipmap/moren_geren_xiaoxi"/>
+
+        <TextView
+            android:id="@+id/item_record_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="#202025"
+            android:text="张三"
+            android:layout_toRightOf="@+id/item_record_iv"
+            android:layout_marginTop="6dp"
+            android:layout_marginLeft="10.5dp"/>
+
+        <TextView
+            android:id="@+id/chat_record_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/item_record_iv"
+            android:layout_below="@+id/item_record_name"
+            android:layout_marginTop="3dp"
+            android:layout_marginLeft="10.5dp"
+            android:maxEms="16"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="13sp"
+            android:textColor="#8c8c98"
+            android:text="啊发给导师打工啊打发发顺丰的沙发上发呆阿斯顿发顺丰阿斯顿发生法发射点法"/>
+
+        <TextView
+            android:id="@+id/chat_record_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下午10：00"
+            android:textSize="12sp"
+            android:textColor="#8c8c98"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="11dp"
+            android:layout_marginRight="15dp"/>
+    </RelativeLayout>
+</LinearLayout>

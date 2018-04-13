@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#f5f5f9">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#393f4f">
+
+        <ImageView
+            android:id="@+id/description_iv_back"
+            android:layout_width="10dp"
+            android:layout_height="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_fanhui" />
+
+        <TextView
+            android:id="@+id/description_tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="20.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6.5dp"
+            android:layout_toRightOf="@+id/description_iv_back"
+            android:text="返回"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/description_tv_sure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:text="确定"
+            android:layout_marginRight="15dp"
+            android:textColor="#65caff"
+            android:textSize="14sp" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="简介"
+        android:gravity="center_vertical"
+        android:paddingLeft="15dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:background="@color/white">
+        <View
+            android:layout_width="15dp"
+            android:layout_height="37dp"
+            android:background="@color/white" />
+        <EditText
+            android:id="@+id/description_et"
+            android:layout_width="300dp"
+            android:layout_marginRight="15dp"
+            android:layout_height="40dp"
+            android:textColor="#202025"
+            android:maxLength="255"
+            android:textSize="13sp"
+            android:background="@color/white" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="37dp">
+            <ImageView
+                android:id="@+id/description_iv_x"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:src="@mipmap/ic_cross"
+                android:layout_gravity="center"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:visibility="invisible"
+                android:layout_marginRight="17.5dp"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,65 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#efefef"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.xydspace.ui.activity.owner.OwnerSaveActivity">
+
+    <include layout="@layout/study_title" />
+
+    <net.iclassmate.xydspace.view.pullrefreshview.PullToRefreshLayout
+        android:id="@+id/pull"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#eeeeee">
+
+        <include layout="@layout/pull_to_refresh_header" />
+
+        <net.iclassmate.xydspace.view.pullrefreshview.PullableScrollView
+            android:id="@+id/fragment_exam_score"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#eeeeee"
+            android:fillViewport="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:descendantFocusability="blocksDescendants"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white">
+
+                    <net.iclassmate.xydspace.view.FullListView
+                        android:id="@+id/study_sapce_listview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:divider="#efefef"
+                        android:dividerHeight="1dp"
+                        android:listSelector="@color/white"
+                        android:scrollbars="none" />
+
+                    <ImageView
+                        android:id="@+id/img_anim"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/loading_animation"
+                        android:scaleType="centerInside" />
+                </FrameLayout>
+            </LinearLayout>
+        </net.iclassmate.xydspace.view.pullrefreshview.PullableScrollView>
+
+        <include layout="@layout/pull_to_load_footer" />
+    </net.iclassmate.xydspace.view.pullrefreshview.PullToRefreshLayout>
+</LinearLayout>
+

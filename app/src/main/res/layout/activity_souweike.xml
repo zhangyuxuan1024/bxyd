@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#f5f5f9">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#393f4f">
+
+        <ImageView
+            android:id="@+id/souweike_iv_back"
+            android:layout_width="10dp"
+            android:layout_height="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_fanhui" />
+
+        <TextView
+            android:id="@+id/souweike_tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="20.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6.5dp"
+            android:layout_toRightOf="@+id/souweike_iv_back"
+            android:text="教与学"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="搜微课"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#efefef"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#efefef"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="37dp"
+            android:orientation="horizontal"
+            android:background="@color/white">
+
+            <View
+                android:layout_width="15dp"
+                android:layout_height="37dp"
+                android:background="@color/white" />
+
+            <EditText
+                android:id="@+id/souweike_et"
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:background="@color/white"
+                android:hint="输入微课关键字                                                                   "
+                android:textColor="#202025"
+                android:maxLength="20"
+                android:singleLine="true"
+                android:textColorHint="#ccccd2"
+                android:textSize="13sp" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="37dp">
+                <ImageView
+                    android:id="@+id/souweike_et_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:src="@mipmap/ic_cross"
+                    android:layout_gravity="center"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:visibility="invisible"
+                    android:layout_marginRight="17.5dp"/>
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#efefef"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#efefef"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="37dp"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="15dp"
+                android:layout_height="37dp"
+                android:background="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:gravity="center_vertical"
+                android:background="@color/white"
+                android:text="年级"
+                android:textColor="#202025"
+                android:textSize="15sp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="37dp"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/souweike_grade_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="37dp"
+                    android:layout_marginLeft="30dp"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textColor="#65caff"/>
+
+                <ImageView
+                    android:id="@+id/souweike_grade_iv_down_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_down"
+                    android:padding="3dp"
+                    android:clickable="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginTop="13.5dp"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#efefef"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#efefef"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="37dp"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="15dp"
+                android:layout_height="37dp"
+                android:background="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="37dp"
+                android:gravity="center_vertical"
+                android:background="@color/white"
+                android:text="科目"
+                android:textColor="#202025"
+                android:textSize="15sp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="37dp"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/souweike_course_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="37dp"
+                    android:layout_marginLeft="30dp"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textColor="#65caff"/>
+
+                <ImageView
+                    android:id="@+id/souweike_course_iv_down_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_down"
+                    android:padding="3dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginTop="13.5dp"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#efefef"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="41.5dp"/>
+
+        <ImageView
+            android:id="@+id/souweike_iv_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@mipmap/bt_search_pressed"/>
+    </LinearLayout>
+    <View
+        android:id="@+id/vMasker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/red"
+        android:visibility="gone"/>
+</LinearLayout>

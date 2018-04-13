@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.xydspace.ui.activity.chat.ChatFileActivity">
+    <net.iclassmate.xydspace.view.TitleBar
+        android:id="@+id/chat_file_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height">
+    </net.iclassmate.xydspace.view.TitleBar>
+
+    <!--<android.support.v4.widget.SwipeRefreshLayout-->
+        <!--android:id="@+id/chat_file_srl"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@+id/chat_file_bar"-->
+        <!--android:layout_above="@+id/linearLayout">-->
+
+        <!--<android.support.v7.widget.RecyclerView-->
+            <!--android:id="@+id/chat_file_recycler"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:paddingLeft="2dp"-->
+            <!--android:paddingRight="2dp">-->
+        <!--</android.support.v7.widget.RecyclerView>-->
+    <!--</android.support.v4.widget.SwipeRefreshLayout>-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#efefef">
+        <GridView
+            android:id="@+id/chat_file_gv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:horizontalSpacing="1dp"
+            android:numColumns="4"
+            android:padding="1dp"
+            android:verticalSpacing="1dp"
+            android:layout_above="@+id/linearLayout"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:orientation="horizontal"
+            android:background="#000000"
+            android:alpha="0.8"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/linearLayout"
+            android:visibility="gone">
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:padding="12dp"
+                android:src="@mipmap/ic_fabu_wangpan"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:padding="12dp"
+                android:src="@mipmap/ic_zhuanfa"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:padding="12dp"
+                android:src="@mipmap/ic_shanchu"/>
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:padding="12dp"
+                android:src="@mipmap/ic_baocun"/>
+        </LinearLayout>
+
+
+        <include
+            android:id="@+id/loading_layout"
+            layout="@layout/loadinglayout" />
+        <!--<RelativeLayout-->
+            <!--android:id="@+id/loading_layout_rl"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="#ffffff"-->
+            <!--android:visibility="gone">-->
+            <!---->
+        <!--</RelativeLayout>-->
+    </RelativeLayout>
+
+</LinearLayout>

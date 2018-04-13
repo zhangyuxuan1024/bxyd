@@ -1,0 +1,75 @@
+package net.iclassmate.xydspace.adapter.teachlearn;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.message.MessageFile;
+import net.iclassmate.xydspace.utils.FileUtils;
+
+import java.util.List;
+
+/**
+ * Created by xyd on 2016/8/26.
+ */
+public class ChatFileAdapter extends RecyclerView.Adapter{
+
+    private Context context;
+    private List<MessageFile> list;
+
+    public ChatFileAdapter(Context context, List<MessageFile> list) {
+        this.context = context;
+        this.list = list;
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_chat_file, parent);
+        MyViewHolder myViewHolder = new MyViewHolder(view);
+        return myViewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        MyViewHolder myViewHolder = (MyViewHolder) holder;
+        MessageFile messageFile = list.get(position);
+        if(messageFile.getObjectName().equals("RC:TxtMsg")){
+            myViewHolder.name.setText(messageFile.getFileName());
+            FileUtils.setScaleImage(context, messageFile.getUrl(), myViewHolder.select);
+        } else if(messageFile.getObjectName().equals("RC:ImgMsg")){
+            myViewHolder.rl1.setVisibility(View.GONE);
+            myViewHolder.rl2.setVisibility(View.VISIBLE);
+            Picasso.with(context).load(messageFile.getUri()).config(Bitmap.Config.RGB_565).into(myViewHolder.iv);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
+
+    class MyViewHolder extends RecyclerView.ViewHolder {
+        RelativeLayout rl1, rl2;
+        TextView title, name;
+        ImageView select, iv;
+        public MyViewHolder(View itemView) {
+            super(itemView);
+            rl1 = (RelativeLayout) itemView.findViewById(R.id.chat_file_rl1);
+            rl2 = (RelativeLayout) itemView.findViewById(R.id.chat_file_rl2);
+            title = (TextView)itemView.findViewById(R.id.chat_file_title);
+            name = (TextView)itemView.findViewById(R.id.chat_file_name);
+            select = (ImageView)itemView.findViewById(R.id.chat_file_select);
+            iv = (ImageView)itemView.findViewById(R.id.chat_file_iv);
+        }
+    }
+
+}

@@ -1,0 +1,82 @@
+package net.iclassmate.xydspace.ui.activity.study;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.WindowManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import net.iclassmate.xydspace.R;
+
+/**
+ * Created by xydbj on 2016.8.12.
+ */
+public class WebViewActivity extends Activity {
+    private WebView webView;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_webview);
+        webView = (WebView) findViewById(R.id.webview);
+
+        try {
+            WebSettings settings = webView.getSettings();
+            // 支持javascript
+            settings.setJavaScriptEnabled(true);
+            // 设置可以支持缩放
+            settings.setSupportZoom(true);
+            // 设置出现缩放工具
+            settings.setBuiltInZoomControls(true);
+            settings.setDisplayZoomControls(false);
+            // 扩大比例的缩放
+            webView.getSettings().setUseWideViewPort(true);
+            // 自适应屏幕
+            // webView.getSettings().setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+            // webView.getSettings().setLoadWithOverviewMode(true);
+
+            webView.getSettings().setUseWideViewPort(true);
+            webView.getSettings().setLoadWithOverviewMode(true);
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+//                    linearLayout.setVisibility(View.GONE);
+                }
+            });
+            webView.getSettings().setPluginState(WebSettings.PluginState.ON);
+            webView.setWebChromeClient(new WebChromeClient());
+            WindowManager wm = (WindowManager) this
+                    .getSystemService(Context.WINDOW_SERVICE);
+            int width = wm.getDefaultDisplay().getWidth();
+            if (width > 650) {
+                this.webView.setInitialScale(190);
+            } else if (width > 520) {
+                this.webView.setInitialScale(160);
+            } else if (width > 450) {
+                this.webView.setInitialScale(140);
+            } else if (width > 300) {
+                this.webView.setInitialScale(120);
+            } else {
+                this.webView.setInitialScale(100);
+            }
+            settings.setUserAgentString("0"); // 0为手机默认, 1为PC台机，2为IPHONE
+            settings.setUserAgentString("Mozilla/5.0 (Linux; U; Android 2.2.1; zh-cn; MB525 Build/3.4.2-117) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1");
+
+            Intent intent = getIntent();
+            String url = intent.getStringExtra("url");
+            webView.loadUrl(url);
+        } catch (Exception e) {
+            this.finish();
+        }
+    }
+    @Override
+    protected void onPause() {
+        if (webView != null) {
+            webView.reload();
+        }
+        super.onPause();
+    }
+}

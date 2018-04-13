@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal"
+            android:paddingBottom="6dp">
+
+            <net.iclassmate.xydspace.view.study.ShapeImageView
+                android:id="@+id/study_space_item_head"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="fitXY"
+                android:src="@mipmap/ic_geren_xuanren" />
+
+            <LinearLayout
+                android:id="@+id/study_space_item_home_page_linear"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/study_space_item_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#65caff"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/study_space_item_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:textColor="#8c8c98"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/study_space_item_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#202025"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/study_space_item_share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp"
+                android:src="@mipmap/ic_down" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/study_space_item_com_relative"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="54dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="2dp"
+            android:background="#efefef">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <net.iclassmate.xydspace.view.study.ShapeImageView
+                    android:id="@+id/study_space_item_forward_head"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:scaleType="fitXY"
+                    android:src="@mipmap/ic_geren_xuanren" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="7dp"
+                    android:layout_marginTop="7dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/study_space_item_forward_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="王小明"
+                        android:textColor="#65caff"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/study_space_item_forward_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:text="上午8:00"
+                        android:textColor="#8c8c98"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/study_space_item_forward_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="上午8:00"
+                        android:textColor="#202025"
+                        android:textSize="14sp" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="6dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginTop="4dp"
+                        android:background="#efefef">
+
+                        <net.iclassmate.xydspace.view.FullGridView
+                            android:id="@+id/study_space_item_gridview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/white"
+                            android:horizontalSpacing="3dp"
+                            android:listSelector="@color/white"
+                            android:smoothScrollbar="true"
+                            android:soundEffectsEnabled="true"
+                            android:verticalSpacing="3dp" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/img_del"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:src="@mipmap/img_yishanchu" />
+
+        <LinearLayout
+            android:id="@+id/study_space_item_linear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:minHeight="14dp"
+            android:orientation="horizontal"
+            android:paddingBottom="7dp"
+            android:paddingLeft="54dp"
+            android:paddingTop="6dp">
+
+            <ImageView
+                android:id="@+id/study_space_item_comment_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:src="@mipmap/ic_review" />
+
+            <TextView
+                android:id="@+id/study_space_item_comment_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="11dp"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:text="2"
+                android:textColor="#c6c6c6"
+                android:textSize="17sp" />
+
+            <ImageView
+                android:id="@+id/study_space_item_like_img"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="32dp"
+                android:layout_marginTop="1dp"
+                android:padding="5dp"
+                android:scaleType="fitXY"
+                android:src="@mipmap/ic_great" />
+
+            <TextView
+                android:id="@+id/study_space_item_like"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingLeft="11dp"
+                android:text="6"
+                android:textColor="#c6c6c6"
+                android:textSize="17sp" />
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

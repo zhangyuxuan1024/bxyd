@@ -1,0 +1,462 @@
+package net.iclassmate.xydspace.ui.activity.owner;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bigkoo.pickerview.OptionsPickerView;
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.area.Province;
+import net.iclassmate.xydspace.bean.owner.Information;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.utils.JsonUtils;
+import net.iclassmate.xydspace.view.CircleImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+/**
+ * Created by xydbj on 2016.8.4.
+ */
+public class JiGouInformationActivity extends Activity implements View.OnClickListener {
+
+    private RelativeLayout jigouinformation_rl_head, jigouinformation_rl_name,
+            jigouinformation_rl_area, jigouinformation_rl_pro;
+    private TextView jigouinformation_tv_userCode, jigouinformation_tv_name,
+            jigouinformation_tv_area, jigouinformation_tv_pro, jigouinformation_tv_back;
+    private ImageView jigouinformation_iv_back;
+    private CircleImageView jigouinformation_iv_icon;
+
+    private SharedPreferences sharedPreferences;
+
+    private Information info;
+    private OptionsPickerView pvOptions_area,pvOptions_tradetype;
+    private List<Province> provinceList;
+    private ArrayList<String> tradeTypeList;
+    private View vMasker;
+    private String userId;
+
+    private static final int REQUEST_NAME = 1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_jigouinformation);
+        initView();
+        getUserId();
+        getArea();
+
+//        IntentFilter filter = new IntentFilter(ImageIconActivity.action);
+//        registerReceiver(broadcastReceiver,filter);
+
+
+    }
+//    public BroadcastReceiver broadcastReceiver = new BroadcastReceiver(){
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            int index = intent.getIntExtra("index",0);
+//            if (index == 1){
+//                Bitmap bitmap = MyBitmapStore.getBitmap();
+//                jigouinformation_iv_icon.setImageBitmap(bitmap);
+//            }
+//        }
+//    };
+
+    public void initView() {
+        vMasker = findViewById(R.id.vMasker);
+        jigouinformation_rl_head = (RelativeLayout) findViewById(R.id.jigouinformation_rl_head);
+        jigouinformation_rl_name = (RelativeLayout) findViewById(R.id.jigouinformation_rl_name);
+        jigouinformation_rl_area = (RelativeLayout) findViewById(R.id.jigouinformation_rl_area);
+        jigouinformation_rl_pro = (RelativeLayout) findViewById(R.id.jigouinformation_rl_pro);
+        jigouinformation_tv_userCode = (TextView) findViewById(R.id.jigouinformation_tv_userCode);
+        jigouinformation_tv_name = (TextView) findViewById(R.id.jigouinformation_tv_name);
+        jigouinformation_tv_area = (TextView) findViewById(R.id.jigouinformation_tv_area);
+        jigouinformation_tv_pro = (TextView) findViewById(R.id.jigouinformation_tv_pro);
+        jigouinformation_iv_icon = (CircleImageView) findViewById(R.id.jigouinformation_iv_icon);
+        jigouinformation_tv_back = (TextView) findViewById(R.id.jigouinformation_tv_back);
+        jigouinformation_iv_back = (ImageView) findViewById(R.id.jigouinformation_iv_back);
+
+        jigouinformation_rl_head.setOnClickListener(this);
+        jigouinformation_rl_name.setOnClickListener(this);
+        jigouinformation_rl_area.setOnClickListener(this);
+        jigouinformation_rl_pro.setOnClickListener(this);
+        jigouinformation_tv_back.setOnClickListener(this);
+        jigouinformation_iv_back.setOnClickListener(this);
+
+        provinceList = new ArrayList<>();
+        pvOptions_area = new OptionsPickerView(this);
+        pvOptions_tradetype = new OptionsPickerView(this);
+        tradeTypeList = new ArrayList<>();
+        TradeType();
+        ShowTradeType();
+        sharedPreferences = JiGouInformationActivity.this.getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+    }
+
+    public void setTrueData(Information info){
+        Picasso.with(JiGouInformationActivity.this).load(info.getUserInfo().getIcon()).placeholder(R.mipmap.ic_touxiang_mingpian).into(jigouinformation_iv_icon);
+        jigouinformation_tv_userCode.setText(info.getUserInfo().getUserCode());
+        jigouinformation_tv_name.setText(info.getUserInfo().getName());
+        jigouinformation_tv_area.setText(info.getUserInfo().getProvince() + info.getUserInfo().getCity() + info.getUserInfo().getArea());
+        jigouinformation_tv_pro.setText(info.getUserInfo().getTradeType());
+    }
+    public void ShowTradeType(){
+        pvOptions_tradetype.setTitle("请选择行业");
+        pvOptions_tradetype.setPicker(tradeTypeList, null, false);
+        pvOptions_tradetype.setCyclic(false);
+        pvOptions_tradetype.setSelectOptions(0);
+        pvOptions_tradetype.setOnoptionsSelectListener(new OptionsPickerView.OnOptionsSelectListener() {
+            @Override
+            public void onOptionsSelect(int options1, int option2, int options3) {
+                String tradetype = tradeTypeList.get(options1);
+                changeTradeType(userId,tradetype);
+                jigouinformation_tv_pro.setText(tradetype);
+                vMasker.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onOptionsCancel() {
+
+            }
+        });
+    }
+
+    //地区
+    public void ShowArea() {
+        final ArrayList<String> proviceList = new ArrayList<>();//省
+        final ArrayList<ArrayList<String>> cityList = new ArrayList<>();//市
+        final ArrayList<ArrayList<ArrayList<String>>> areaList = new ArrayList<>();//县
+
+        for (int i = 0; i < provinceList.size(); i++) {
+            proviceList.add(provinceList.get(i).getProvince_name());//把所有的省添加到proviceList集合中去
+            ArrayList<String> cityListi = new ArrayList<>();
+            ArrayList<ArrayList<String>> areaListi = new ArrayList<ArrayList<String>>();
+
+            for (int j = 0; j < provinceList.get(i).getCityList().size(); j++) {
+                cityListi.add(provinceList.get(i).getCityList().get(j).getCity_name());
+                ArrayList<String> countyListi = new ArrayList<>();
+
+                for (int k = 0; k < provinceList.get(i).getCityList().get(j).getCountyList().size(); k++) {
+                    countyListi.add(provinceList.get(i).getCityList().get(j).getCountyList().get(k).getCounty_name());
+                }
+                areaListi.add(countyListi);
+            }
+            areaList.add(areaListi);
+            cityList.add(cityListi);
+        }
+        pvOptions_area.setTitle("请选择地区");
+        pvOptions_area.setPicker(proviceList, cityList, areaList, true);
+        pvOptions_area.setCyclic(false, false, false);
+        pvOptions_area.setSelectOptions(0, 0, 0);
+        pvOptions_area.setOnoptionsSelectListener(new OptionsPickerView.OnOptionsSelectListener() {
+            @Override//选择地区的确定按钮
+            public void onOptionsSelect(int o1, int o2, int o3) {
+                String area = proviceList.get(o1) + cityList.get(o1).get(o2) + areaList.get(o1).get(o2).get(o3);
+                changeArea(userId, proviceList.get(o1), cityList.get(o1).get(o2), areaList.get(o1).get(o2).get(o3));
+                jigouinformation_tv_area.setText(area);
+                vMasker.setVisibility(View.GONE);
+            }
+
+            @Override//选择地区的取消按钮
+            public void onOptionsCancel() {
+
+            }
+        });
+    }
+    //修改地区
+    public void changeArea(final String userId, final String province, final String city, final String area) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                execute(userId, province, city, area);
+            }
+        }).start();
+    }
+
+    public void getArea() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String str_area = getAssets("area.json");
+                provinceList = JsonUtils.StartProvinceJson(str_area);
+                Message message = new Message();
+                message.obj = provinceList;
+                message.what = 1;
+                mHandler.sendMessage(message);
+            }
+        }).start();
+    }
+
+    public String getAssets(String fileName) {
+        String str = "";
+        try {
+            StringBuffer sb = new StringBuffer();
+            InputStream is = getAssets().open(fileName);
+            int len = -1;
+            byte[] buff = new byte[1024];
+            while ((len = is.read(buff)) != -1) {
+                sb.append(new String(buff, 0, len, "utf-8"));
+            }
+            is.close();
+            str += sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return str;
+    }
+
+    public void execute(String userId, String province, String city, String area) {
+        MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("application/json;charset=utf-8");
+        OkHttpClient okHttpClient = new OkHttpClient();
+        JSONObject object = null;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("province", province);
+            jsonObject.put("city", city);
+            jsonObject.put("area", area);
+
+            object = new JSONObject();
+            object.put("userId", userId);
+            object.put("userInfo", jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String json = object.toString();
+        Log.i("info", "修改地区的json串：" + json);
+        RequestBody body = RequestBody.create(MEDIA_TYPE_MARKDOWN, json);
+        Request request = new Request.Builder()
+                .put(body)
+                .url(Constant.CHANGEINFO_URL)
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.i("info", "修改地区失败:" + e.getMessage());
+                Message msg = new Message();
+                msg.what = 404;
+                mHandler.sendMessage(msg);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Message msg = new Message();
+                msg.what = 2;
+                msg.obj = response.code();
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+    //修改行业
+    public void changeTradeType(final String userId, final String tradeType) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                execute(userId, tradeType);
+            }
+        }).start();
+    }
+
+    public void execute(String userId, String tradeType) {
+        MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
+        OkHttpClient okHttpClient = new OkHttpClient();
+        JSONObject object = null;
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("tradeType", tradeType);
+
+            object = new JSONObject();
+            object.put("userId", userId);
+            object.put("userInfo", jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String json = object.toString();
+
+        RequestBody body = RequestBody.create(mediaType, json);
+        Request request = new Request.Builder()
+                .put(body)
+                .url(Constant.CHANGEINFO_URL)
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.i("info", "修改行业失败：" + e.getMessage());
+                Message msg = new Message();
+                msg.what = 404;
+                mHandler.sendMessage(msg);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Message msg = new Message();
+                msg.obj = response.code();
+                msg.what = 3;
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+    public void getUserId() {
+        userId = sharedPreferences.getString(Constant.ID_USER, "");
+        Log.i("info","机构用户的userId:"+userId);
+        if (userId == null) {
+            return;
+        }
+        getInformation(userId);
+    }
+    public void getInformation(final String userId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                execute(userId);
+            }
+        }).start();
+    }
+    public void execute(String userId) {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        Request request = new Request.Builder()
+                .get()
+                .url(Constant.QUERY_USER_INFORMATION + "/" + userId + "?needIcon=true")
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.i("info", "获取机构用户信息失败：" + e.getMessage());
+                Message msg = new Message();
+                msg.what = 404;
+                mHandler.sendMessage(msg);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Message msg = new Message();
+                msg.obj = response.body().string();
+                msg.what = response.code();
+                mHandler.sendMessage(msg);
+            }
+        });
+    }
+    public void TradeType(){
+        tradeTypeList.add("A农林牧渔业");
+        tradeTypeList.add("B采掘业");
+        tradeTypeList.add("C制造业");
+        tradeTypeList.add("D电力煤气水的生产业");
+        tradeTypeList.add("E建筑业");
+        tradeTypeList.add("F交通运输仓储邮电通信业");
+        tradeTypeList.add("G信息传输计算服务软件业");
+        tradeTypeList.add("H批发零售业");
+        tradeTypeList.add("I住宿和餐饮业");
+        tradeTypeList.add("J金融业");
+        tradeTypeList.add("K房地产业");
+        tradeTypeList.add("L租赁和商务服务业");
+        tradeTypeList.add("M科研技术服务业");
+        tradeTypeList.add("N水利环境公共设施");
+        tradeTypeList.add("O居民服务其他服务业");
+        tradeTypeList.add("P教育");
+        tradeTypeList.add("Q卫生社会保障服务业");
+        tradeTypeList.add("R文化体育娱乐业");
+        tradeTypeList.add("S公共管理社会组织");
+        tradeTypeList.add("T国际组织");
+    }
+    public Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    provinceList = (List<Province>) msg.obj;
+                    Log.i("info", "解析之后的用户信息：" + provinceList.toString());
+                    ShowArea();
+                    break;
+                case 2:
+                    int result_code = (int) msg.obj;
+                    Log.i("info", "修改地区信息返回的code:" + result_code);
+                    break;
+                case 3:
+                    int result_code3 = (int) msg.obj;
+                    Log.i("info", "修改行业信息返回的code:" + result_code3);
+                    break;
+                case 200:
+                    String str = (String) msg.obj;
+                    info = JsonUtils.StartInformationJson(str);
+                    Log.i("info","获取机构用户已解析信息："+info.toString());
+                    setTrueData(info);
+                    break;
+                case 404:
+                    Toast.makeText(JiGouInformationActivity.this,"请检查网络",Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    Log.i("info","获取机构用户信息失败："+msg.obj.toString());
+                    break;
+            }
+        }
+    };
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.jigouinformation_iv_back:
+            case R.id.jigouinformation_tv_back:
+                finish();
+                break;
+            case R.id.jigouinformation_rl_head://头像
+                if (info != null || !info.equals("") || !info.equals("null")){
+                    Intent intent_head = new Intent(this, ImageIconActivity.class);
+                    intent_head.putExtra("icon", info.getUserInfo().getIcon());
+                    Log.i("info", "用户头像的url:" + info.getUserInfo().getIcon());
+                    startActivity(intent_head);
+                }else{
+                    Toast.makeText(JiGouInformationActivity.this,"请检查网络",Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case R.id.jigouinformation_rl_name://名称
+                Intent intent_name = new Intent(JiGouInformationActivity.this, ModificationNameActivity.class);
+                intent_name.putExtra("userName", jigouinformation_tv_name.getText());
+                startActivityForResult(intent_name, REQUEST_NAME);
+                break;
+            case R.id.jigouinformation_rl_area://地区
+                pvOptions_area.show();
+                break;
+            case R.id.jigouinformation_rl_pro://行业
+                pvOptions_tradetype.show();
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_NAME) {
+            if (resultCode == RESULT_OK) {
+                String userName = data.getStringExtra("userName--");
+                jigouinformation_tv_name.setText(userName);
+            }
+        }
+    }
+}

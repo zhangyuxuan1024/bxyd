@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_disk_item">
+        <net.iclassmate.xydspace.view.CircleImageView
+            android:id="@+id/jigouwangpan_content_iv"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:src="@mipmap/ic_jigoumoren_wangpan"
+            android:layout_marginLeft="15dp"
+            android:layout_centerVertical="true"/>
+        <TextView
+            android:id="@+id/jigouwangpan_content_tv"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:gravity="center_vertical|bottom"
+            android:text="英语培训"
+            android:textSize="15sp"
+            android:textColor="#202025"
+            android:layout_toRightOf="@+id/jigouwangpan_content_iv"
+            android:layout_marginLeft="10dp" />
+        <TextView
+            android:id="@+id/jigouwangpan_content_tv_admin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="管理员：张三，李四"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="#8c8c98"
+            android:textSize="11sp"
+            android:layout_toRightOf="@+id/jigouwangpan_content_iv"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_below="@+id/jigouwangpan_content_tv"/>
+
+    </RelativeLayout>
+    
+</LinearLayout>

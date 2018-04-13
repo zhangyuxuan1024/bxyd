@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/message_time" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp">
+
+        <net.iclassmate.xydspace.view.study.ShapeImageView
+            android:id="@+id/receive_icon"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="14dp"
+            android:src="@mipmap/ic_liaotiantouxiang" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:layout_marginTop="10dp"
+            android:layout_toRightOf="@+id/receive_icon"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/receive_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:layout_marginLeft="16dp"
+                android:textColor="#8c8c98"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:id="@+id/receive_file_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginTop="3dp"
+                android:background="@mipmap/img_tupian_liaotianchuang02"
+                android:orientation="horizontal"
+                android:paddingBottom="7dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="16dp"
+                android:paddingTop="7dp">
+
+                <ImageView
+                    android:id="@+id/receive_pic_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:background="#efefef"
+                    android:padding="8dp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="6dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/receiver_tv_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxWidth="80dp"
+                        android:textColor="#202025"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/receive_tv_content"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:maxLines="3"
+                        android:maxWidth="80dp"
+                        android:paddingRight="13dp"
+                        android:textColor="#aeaeae"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

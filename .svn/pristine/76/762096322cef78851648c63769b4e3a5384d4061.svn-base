@@ -1,0 +1,15 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.xydspace.ui.fragment.MessageFragment">
+
+    <com.baoyz.swipemenulistview.SwipeMenuListView
+        android:id="@+id/fragment_message_listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="#efefef"
+        android:dividerHeight="1dp" />
+
+</LinearLayout>

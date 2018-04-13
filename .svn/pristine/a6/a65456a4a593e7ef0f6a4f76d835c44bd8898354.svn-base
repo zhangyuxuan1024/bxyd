@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/llShowIndex"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:background="#f5f5f9"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvIndex"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="15dp"
+            android:text="A"
+            android:textColor="#8c8c98"
+            android:textSize="13sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#efefef" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:orientation="horizontal">
+
+        <net.iclassmate.xydspace.view.study.ShapeImageView
+            android:id="@+id/iv_contacts_person_icon"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:background="@mipmap/ic_geren_xuanren" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/iv_contacts_person_icon"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp">
+
+            <TextView
+                android:id="@+id/tv_contacts_person_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="柳羽凡啊但是发射点发生啊手动阀手动阀"
+                android:textColor="#202025"
+                android:textSize="15sp"
+                android:maxEms="10"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
+
+            <TextView
+                android:id="@+id/contacts_xyd_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_contacts_person_name"
+                android:layout_marginTop="0dp"
+                android:text="柳羽凡啊但是发射点发生啊手动阀手动阀"
+                android:textColor="#8c8c98"
+                android:textSize="12sp"
+                android:maxEms="10"
+                android:singleLine="true"
+                android:ellipsize="end"
+                />
+
+            <TextView
+                android:id="@+id/tv_contacts_person_name2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="阿凡达是打发十分"
+                android:textColor="#202025"
+                android:textSize="15sp"
+                android:maxEms="10"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:visibility="gone"
+                />
+        </RelativeLayout>
+
+        <Button
+            android:layout_width="65dp"
+            android:layout_height="25dp"
+            android:background="@drawable/item_add_contacts"
+            android:layout_marginRight="20dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/btn_contacts" />
+
+        <TextView
+            android:id="@+id/tv_contacts_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="未注册"
+            android:textSize="12sp"
+            android:textColor="#8c8c98"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="20dp"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
+
+</LinearLayout>

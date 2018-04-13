@@ -1,0 +1,17 @@
+package net.iclassmate.xydspace.ui.activitys.teachlearn;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+import net.iclassmate.xydspace.R;
+
+/**
+ * Created by xydbj on 2016.11.3.
+ */
+public class SeePicActivity extends Activity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_seepic);
+    }
+}

@@ -1,0 +1,80 @@
+package net.iclassmate.xydspace.ui.activity.other;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.Window;
+import android.widget.Toast;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.view.TitleBar;
+import net.iclassmate.xydspace.view.TitleBar.TitleOnClickListener;
+import net.iclassmate.xydspace.view.calendar.CalendarMonthCard;
+import net.iclassmate.xydspace.view.calendar.CustomDate;
+import net.iclassmate.xydspace.view.calendar.ScrollerMonth;
+
+public class RecordCalendarActivity extends FragmentActivity implements TitleOnClickListener{
+
+    private Context mContext;
+    private TitleBar titleBar;
+    private ScrollerMonth scrollerMonth;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_record_calendar);
+        mContext=this;
+        initView();
+        initListener();
+        initData();
+    }
+
+    private void initView() {
+        titleBar= (TitleBar) findViewById(R.id.record_date_title_bar);
+        titleBar.setTitle("按日期查找");
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui,"返回");
+        scrollerMonth = (ScrollerMonth) findViewById(R.id.scroller_month);
+    }
+
+    private void initListener() {
+        titleBar.setTitleClickListener(this);
+        scrollerMonth.setCallBackListener(new CalendarMonthCard.OnCellBackListener() {
+            @Override
+            public void clickDate(CustomDate date) {
+                Toast.makeText(RecordCalendarActivity.this, "选择日期"+date.getYear()+";"+date.getMonth()+";"+date.getDay(), Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void changeDate(CustomDate date) {
+            }
+        });
+    }
+
+    private void initData() {
+
+    }
+
+    @Override
+    public void leftClick() {
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+}

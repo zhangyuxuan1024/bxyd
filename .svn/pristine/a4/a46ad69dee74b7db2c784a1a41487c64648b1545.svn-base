@@ -1,0 +1,279 @@
+package net.iclassmate.xydspace.adapter.study;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.study.FileDirList;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.utils.BitmapUtils;
+import net.iclassmate.xydspace.utils.DensityUtil;
+import net.iclassmate.xydspace.utils.LoadImageSd;
+
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Created by xydbj on 2016/6/7.
+ */
+public class GridPicAdapter extends BaseAdapter {
+    private Context context;
+    private List<Object> list;
+    private LoadImageSd load;
+    private boolean cantSelect;
+
+    public GridPicAdapter(Context context, List<Object> list) {
+        this.context = context;
+        this.list = list;
+        load = new LoadImageSd();
+        cantSelect = true;
+    }
+
+    @Override
+    public int getCount() {
+        int ret = 0;
+        if (list != null) {
+            if (cantSelect) {
+                ret = list.size() + 1;
+            } else {
+                ret = list.size();
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return list.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        int ret = 0;
+        if (list == null || list.size() == position) {
+            return ret;
+        }
+        Object object = list.get(position);
+        if (object instanceof String) {
+            ret = 0;
+        } else if (object instanceof FileDirList) {
+            ret = 1;
+        }
+        return ret;
+    }
+
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
+        if (getItemViewType(i) == 0) {
+            view = bindPic(i, view, viewGroup);
+        } else if (getItemViewType(i) == 1) {
+            view = bindFile(i, view, viewGroup);
+        }
+        return view;
+    }
+
+    public View bindPic(int position, View view, ViewGroup viewGroup) {
+        PicHolder holder = null;
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.study_space_item_image, null);
+            holder = new PicHolder();
+            holder.img = (ImageView) view.findViewById(R.id.study_space_item_img);
+            view.setTag(holder);
+        } else {
+            holder = (PicHolder) view.getTag();
+        }
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth();
+        int height = width - DensityUtil.dip2px(context, 30);
+        width = width - DensityUtil.dip2px(context, 40);
+        RelativeLayout.LayoutParams para = (RelativeLayout.LayoutParams) holder.img.getLayoutParams();
+        para.width = width / 4;
+        para.height = height / 4;
+
+        Bitmap bm = BitmapUtils.stringtoBitmap("");
+        holder.img.setImageBitmap(bm);
+        holder.img.setImageResource(R.mipmap.img_morentupian);
+        holder.img.setLayoutParams(para);
+
+        if (position == list.size()) {
+            holder.img.setTag("");
+            holder.img.setImageResource(R.mipmap.ic_add_introduced);
+        } else {
+            holder.img.setTag(list.get(position));
+            Object object = list.get(position);
+            if (object instanceof String) {
+                String path = (String) object;
+                load.downloadImage(holder.img, path);
+                load.setmHeight(para.height);
+                load.setmWidth(para.height);
+            }
+        }
+        return view;
+    }
+
+    public View bindFile(int position, View view, ViewGroup viewGroup) {
+        ViewHolder holder = null;
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.study_grid_netfile_item, null);
+            holder = new ViewHolder();
+            holder.img = (ImageView) view.findViewById(R.id.netfile_item_img);
+            holder.img_check = (ImageView) view.findViewById(R.id.netfile_item_img_check);
+            holder.tv = (TextView) view.findViewById(R.id.netfile_item_tv);
+            holder.linearLayout = (LinearLayout) view.findViewById(R.id.study_grid_linear);
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
+        }
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth();
+        int height = width - DensityUtil.dip2px(context, 20);
+        width = width - DensityUtil.dip2px(context, 40);
+        RelativeLayout.LayoutParams para = (RelativeLayout.LayoutParams) holder.linearLayout.getLayoutParams();
+        para.width = width / 4;
+        para.height = height / 4;
+        Bitmap bm = BitmapUtils.stringtoBitmap("");
+        holder.img.setImageBitmap(bm);
+        holder.img.setImageResource(R.mipmap.ic_qita);
+        holder.linearLayout.setLayoutParams(para);
+
+        Object object = list.get(position);
+        if (object instanceof FileDirList) {
+            FileDirList file = (FileDirList) object;
+
+            holder.img_check.setTag(position);
+            holder.tv.setText(file.getShortName());
+            int type = file.getType();
+            String path = file.getFullPath();
+            String url = file.getScale();
+            holder.img.setTag(position);
+            setImage(holder.img, type, path, url, position);
+            holder.img_check.setVisibility(View.GONE);
+        }
+        view.setBackgroundColor(Color.parseColor("#efefef"));
+        return view;
+    }
+
+    private void setImage(final ImageView img, final int type, final String path, String url, final int tag) {
+        int index = (int) img.getTag();
+        if (index != tag) {
+            return;
+        }
+        if (type == 1) {
+            img.setImageResource(R.mipmap.ic_wenjianjia);
+        } else if (type == 2) {
+            String name = path;
+            if (name.contains(".")) {
+                name = name.substring(name.lastIndexOf(".") + 1, name.length());
+            }
+            name = name.toLowerCase();
+            switch (name) {
+                case "doc":
+                case "docx":
+                case "txt":
+                case "pdf":
+                case "wps":
+                    img.setImageResource(R.mipmap.ic_wendang02);
+                    break;
+                case "wav":
+                case "mp3":
+                case "wma":
+                case "wva":
+                case "ogg":
+                case "ape":
+                case "aif":
+                case "au":
+                case "ram":
+                case "mmf":
+                case "amr":
+                case "aac":
+                case "flac":
+                    img.setImageResource(R.mipmap.ic_yinpin02);
+                    break;
+                case "xls":
+                case "xlsx":
+                case "et":
+                    img.setImageResource(R.mipmap.ic_biaoge02);
+                    break;
+                case "ppt":
+                case "pptx":
+                case "dps":
+                    img.setImageResource(R.mipmap.ic_ppt);
+                    break;
+                case "avi":
+                case "mpg":
+                case "mpeg":
+                case "mov":
+                case "rm":
+                case "rmvb":
+                case "mp4":
+                case "3gp":
+                case "flv":
+                case "wmv":
+                case "bmp":
+                case "gif":
+                case "jpg":
+                case "pic":
+                case "png":
+                case "tif":
+                case "jpeg":
+                    if (url != null) {
+                        if (url.contains("base64")) {
+                            url = url.substring(url.indexOf("base64") + 7);
+                            Bitmap bm = BitmapUtils.stringtoBitmap(url);
+                            img.setImageBitmap(bm);
+                        } else {
+                            Picasso.with(context).load(url).placeholder(R.mipmap.img_morentupian).resize(106, 106).into(img);
+                        }
+                    }
+                    break;
+                default:
+                    img.setImageResource(R.mipmap.ic_qita);
+                    break;
+            }
+        }
+    }
+
+    public boolean isCantSelect() {
+        return cantSelect;
+    }
+
+    public void setCantSelect(boolean cantSelect) {
+        this.cantSelect = cantSelect;
+    }
+
+    class PicHolder {
+        ImageView img;
+    }
+
+    class ViewHolder {
+        ImageView img, img_check;
+        TextView tv;
+        LinearLayout linearLayout;
+    }
+}

@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.bxyd.ui.activitys.study.openfile.OpenFailActivity">
+
+    <include layout="@layout/study_title" />
+
+    <ImageView
+        android:layout_width="113dp"
+        android:layout_height="113dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="119dp"
+        android:scaleType="fitXY"
+        android:src="@mipmap/ic_warning" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="19dp"
+        android:text="不支持的文件类型"
+        android:textColor="#202025"
+        android:textSize="16sp" />
+</LinearLayout>

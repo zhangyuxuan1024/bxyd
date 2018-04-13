@@ -1,0 +1,202 @@
+package net.iclassmate.xydspace.ui.activity.chat;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.ui.fragment.emotion.EmotionMainFragment;
+import net.iclassmate.xydspace.utils.SendLastMessage;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.TitleBar;
+
+import io.rong.imlib.model.Conversation;
+
+public class ChatActivity extends FragmentActivity implements TitleBar.TitleOnClickListener, SendLastMessage {
+    private String TAG = ChatActivity.class.getSimpleName();
+    private ListView messageBody;
+    private LinearLayout chat_root_layout;
+    private TitleBar titleBar;
+    private Context mContext;
+    private String targetId, name, iconUrl;
+    private String from;
+    private Conversation messageInfo;
+    private Conversation.ConversationType type;
+    private EmotionMainFragment emotionMainFragment;
+
+    //最后一条消息的id
+    private int last_message_id;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_chat);
+        mContext = this;
+        initView();
+        setupUI(chat_root_layout);
+        initDatas();
+    }
+
+    /**
+     * 软键盘和表情图的隐藏
+     *
+     * @param view 跟布局
+     * @author LvZhangFeng
+     * @time 2016年8月6日17点
+     */
+    public void setupUI(View view) {
+        if (!(view instanceof EditText)) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event) {
+                    emotionMainFragment.mkeyboard.hideEmotionLayout(false);
+                    emotionMainFragment.mkeyboard.hideSoftInput();
+                    return false;
+                }
+            });
+        }
+
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                View innerView = ((ViewGroup) view).getChildAt(i);
+                setupUI(innerView);
+            }
+        }
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.chat_title_bar);
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui, "消息");
+        titleBar.setRightIcon(R.mipmap.ic_gerenxiangqing);
+        titleBar.setTitleClickListener(this);
+        titleBar.setRightVisibility(View.INVISIBLE);
+        messageBody = (ListView) findViewById(R.id.messagebody);
+        chat_root_layout = (LinearLayout) findViewById(R.id.chat_root_layout);
+    }
+
+
+    private void initDatas() {
+        from = getIntent().getStringExtra("from");
+        if (from.equals("MessageFragment")) {
+            messageInfo = getIntent().getParcelableExtra("message");
+            if (messageInfo != null) {
+                targetId = messageInfo.getTargetId();
+//                name = emotionMainFragment.messagesAdapter.friendName;
+                iconUrl = String.format(Constant.STUDY_GET_USER_PIC, targetId);
+                titleBar.setTitle(messageInfo.getConversationTitle());
+            }
+        } else {
+            targetId = getIntent().getStringExtra("targetId");
+            type = (Conversation.ConversationType) getIntent().getSerializableExtra("type");
+            name = getIntent().getStringExtra("name");
+            iconUrl = getIntent().getStringExtra("iconUrl");
+            titleBar.setTitle(name);
+        }
+        initEmotionMainFragment();
+        messageBody.setSelection(messageBody.getBottom());
+        emotionMainFragment.setSendLastMessage(this);
+    }
+
+    /**
+     * 初始化表情面板
+     */
+    public void initEmotionMainFragment() {
+        //构建传递参数
+        Bundle bundle = new Bundle();
+        //绑定主内容编辑框
+        bundle.putBoolean(EmotionMainFragment.BIND_TO_EDITTEXT, true);
+        //隐藏控件
+        bundle.putBoolean(EmotionMainFragment.HIDE_BAR_EDITTEXT_AND_BTN, false);
+        //传递消息参数
+        if (messageInfo != null) {
+            bundle.putString("from", from);
+            bundle.putParcelable("message", messageInfo);
+        } else {
+            bundle.putString("from", from);
+            bundle.putString("targetId", targetId);
+            bundle.putSerializable("type", type);
+            bundle.putString("name", name);
+        }
+        //替换fragment
+        //创建修改实例
+        emotionMainFragment = EmotionMainFragment.newInstance(EmotionMainFragment.class, bundle);
+        emotionMainFragment.bindToContentView(messageBody);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        transaction.replace(R.id.fl_emotionview_main, emotionMainFragment);
+        transaction.addToBackStack(null);
+        //提交修改
+        transaction.commit();
+    }
+
+    @Override
+    public void leftClick() {
+        close();
+    }
+
+    @Override
+    public void onBackPressed() {
+        close();
+    }
+
+    private void close() {
+        Intent intent = new Intent();
+        intent.putExtra("update", true);
+        setResult(RESULT_OK, intent);
+        this.finish();
+    }
+
+    @Override
+    public void rightClick() {
+        Intent intent = new Intent(UIUtils.getContext(), ChatInformationActivity.class);
+        if(from.equals("MessageFragment") && messageInfo != null) {
+            name = emotionMainFragment.messagesAdapter.friendName;
+        }
+        intent.putExtra("from", "person");
+        intent.putExtra("name", name);
+        intent.putExtra("iconUrl", iconUrl);
+        intent.putExtra("targetId", targetId);
+        startActivity(intent);
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            finish();
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void sendMessageId(int msgId) {
+        last_message_id = msgId;
+    }
+}

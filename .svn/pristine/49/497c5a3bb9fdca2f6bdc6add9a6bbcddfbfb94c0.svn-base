@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/send_message_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxHeight="288dp"
+        android:maxWidth="258dp">
+
+        <ImageView
+            android:id="@+id/img_message_pic"
+            android:layout_width="238dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="6dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="288dp"
+            android:maxWidth="258dp"
+            android:paddingBottom="3dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="9dp"
+            android:paddingTop="3dp" />
+
+        <ImageView
+            android:id="@+id/img_message_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="5dp"
+            android:src="@mipmap/ic_bofang" />
+
+        <TextView
+            android:id="@+id/tv_video_name"
+            android:layout_width="226dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="3dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="12dp"
+            android:background="#7000"
+            android:maxHeight="32dp"
+            android:maxLines="2"
+            android:maxWidth="258dp"
+            android:paddingLeft="14sp"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+    </FrameLayout>
+</LinearLayout>

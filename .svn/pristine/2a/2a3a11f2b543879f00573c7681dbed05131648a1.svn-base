@@ -1,0 +1,110 @@
+package net.iclassmate.xydspace.ui.activity.study.openfile;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.view.study.ZoomImageView;
+
+public class OpenPhotoActivity extends FragmentActivity implements View.OnClickListener {
+    private String picPath;
+    private boolean ischeck;
+    private int count;
+    private ZoomImageView img;
+    private ImageView img_check, img_back;
+    private TextView tv_back, tv_right, tv_title;
+    private Context mContext;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_open_photo);
+
+        Intent intent = getIntent();
+        picPath = intent.getStringExtra("path");
+        ischeck = intent.getBooleanExtra("check", false);
+        count = intent.getIntExtra("count", 0);
+        init();
+    }
+
+    private void init() {
+        mContext = this;
+        img_back = (ImageView) findViewById(R.id.study_message_back);
+        img_back.setOnClickListener(this);
+        tv_back = (TextView) findViewById(R.id.study_message_left_tv);
+        tv_back.setOnClickListener(this);
+        tv_back.setText("返回");
+        tv_title = (TextView) findViewById(R.id.study_message_title_tv);
+        tv_title.setText("");
+        tv_right = (TextView) findViewById(R.id.study_message_right_tv);
+        tv_right.setVisibility(View.VISIBLE);
+        if (count > 0) {
+            tv_right.setText("确定(" + count + ")");
+        } else {
+            tv_right.setText("确定");
+        }
+        tv_right.setTextColor(Color.parseColor("#65caff"));
+        tv_right.setOnClickListener(this);
+        img = (ZoomImageView) findViewById(R.id.photo_look);
+        img_check = (ImageView) findViewById(R.id.img_check);
+        img_check.setOnClickListener(this);
+        Bitmap bm = BitmapFactory.decodeFile(picPath);
+        img.setImageBitmap(bm);
+        if (ischeck) {
+            img_check.setImageResource(R.mipmap.ic_checked);
+        } else {
+            img_check.setImageResource(R.mipmap.ic_unchecked);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.study_message_left_tv:
+            case R.id.study_message_back:
+                this.finish();
+                break;
+            case R.id.study_message_right_tv:
+                Intent intent = new Intent();
+                if (count > 9) {
+                    intent.putExtra("check", false);
+                } else {
+                    intent.putExtra("check", ischeck);
+                }
+                intent.putExtra("count", count);
+                setResult(RESULT_OK, intent);
+                this.finish();
+                break;
+            case R.id.img_check:
+                ischeck = !ischeck;
+                if (ischeck) {
+                    count++;
+                    if (count > 9) {
+                        Toast.makeText(mContext, "最多选择9个文件", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    img_check.setImageResource(R.mipmap.ic_checked);
+                    tv_right.setText("确定(" + count + ")");
+                } else {
+                    img_check.setImageResource(R.mipmap.ic_unchecked);
+                    count--;
+                    if (count > 0) {
+                        tv_right.setText("确定(" + count + ")");
+                    } else {
+                        tv_right.setText("确定");
+                    }
+                }
+                break;
+        }
+    }
+}

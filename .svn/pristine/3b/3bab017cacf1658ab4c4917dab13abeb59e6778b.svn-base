@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="net.iclassmate.bxyd"
+    android:installLocation="preferExternal">
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- SDCard中创建与删除文件权限 -->
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+
+
+    <application
+        android:name=".application.MyApplication"
+        android:allowBackup="true"
+        android:hardwareAccelerated="false"
+        android:icon="@drawable/icon_bingxueyundong"
+        android:label="@string/app_name"
+        android:largeHeap="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!-- 刘学伟 start -->
+        <activity
+            android:name=".ui.activitys.MainActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.LoginActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:hardwareAccelerated="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+        <activity
+            android:name=".ui.activitys.WelcomeActivity"
+            android:hardwareAccelerated="false"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.activitys.RegisterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.ForgetPwActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.ChatActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.constacts.ContactsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.GroupChatActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.constacts.AddFriendActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.constacts.GroupListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.ChatInformationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.BacklogActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.constacts.SendFriendRequestActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.information.FriendInformationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.DiscussionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.ChatFileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.ChatRecordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.ClearRecordActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme_dialog" />
+        <activity
+            android:name=".ui.activitys.constacts.PhoneContactActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.SelectContactsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.other.RecordCalendarActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.GuideActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.constacts.FriendResActivity"
+            android:screenOrientation="portrait" />
+
+        <!-- 吕占峰 start -->
+        <activity
+            android:name=".ui.activitys.constacts.SelectSortActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.balloon.BalloonActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.activitys.chat.RecordInfoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.constacts.DiscussionListActivity"
+            android:screenOrientation="portrait" />
+
+        <!-- end -->
+        <!-- 张寓宣 start -->
+        <activity
+            android:name=".ui.activitys.teachlearn.IntroduceFunctionActivity"
+            android:hardwareAccelerated="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.teachlearn.SouWeiKeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.OwnerInformationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.teachlearn.TranActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.teachlearn.NetDisk2Activity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.SettingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.FeedBackActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.BoundPhoneNumActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.ChangePasswordActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.BoundNowPhoneNumActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.PrivacySettingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.AboutUsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.ModificationNameActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.DescriptionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.ImageIconActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.TwoCodeActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.CutActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.AttentionActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.teachlearn.DeleteActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.activitys.owner.UnfollowActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.activitys.owner.ServiceAgreementActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.WelcomePageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.JiGouInformationActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.CheckActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.activitys.owner.UpdateActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.activitys.teachlearn.ExitCreateFileActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.fragment.tran.DeleteFileActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.activitys.study.ScanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.WebViewActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:hardwareAccelerated="true" />
+        <activity
+            android:name=".ui.activitys.study.IsWifiActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/DeleteDialogTheme" />
+        <activity
+            android:name=".ui.activitys.teachlearn.CreateNewFileActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.teachlearn.AllVideoActivity"
+            android:screenOrientation="portrait" />
+
+        <!-- 张寓宣 end -->
+        <!-- begin imlib request -->
+        <!-- 友盟统计 -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="57c78ecce0f55a0baf000fca" />
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="bxyd" />
+
+        <!-- 开发环境融云key -->
+        <!--
+        <meta-data
+        android:name="RONG_CLOUD_APP_KEY"
+        android:value="mgb7ka1nbtkcg" />
+        -->
+
+
+        <!-- 测试环境融云key -->
+        <!--
+        <meta-data
+        android:name="RONG_CLOUD_APP_KEY"
+        android:value="8w7jv4qb7hvpy" />
+        -->
+
+
+        <!-- 生产环境融云key -->
+        <meta-data
+            android:name="RONG_CLOUD_APP_KEY"
+            android:value="z3v5yqkbvvuc0" />
+
+        <service
+            android:name="io.rong.imlib.ipc.RongService"
+            android:exported="true"
+            android:process=":ipc" />
+        <service android:name="io.rong.imlib.ReConnectService" />
+
+        <receiver android:name="io.rong.imlib.ConnectChangeReceiver" />
+        <receiver
+            android:name="io.rong.imlib.HeartbeatReceiver"
+            android:process=":ipc" />
+
+        <!-- end -->
+        <!-- 必选： SDK 核心功能 -->
+        <service
+            android:name="io.rong.push.core.PushRegistrationService"
+            android:exported="false" />
+        <service
+            android:name="io.rong.push.PushService"
+            android:exported="false"
+            android:process="io.rong.push" />
+        <service
+            android:name="io.rong.push.core.MessageHandleService"
+            android:exported="true" />
+
+        <receiver
+            android:name="io.rong.push.PushReceiver"
+            android:process="io.rong.push">
+            <intent-filter>
+                <action android:name="io.rong.push.intent.action.HEART_BEAT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+        </receiver>
+        <!-- end -->
+
+
+        <!-- 石中玉  start -->
+        <activity
+            android:name=".ui.activitys.study.MessageAlertActivity"
+            android:label="@string/title_activity_message_alert"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.StudyWindowActivity"
+            android:label="@string/title_activity_study_window"
+            android:screenOrientation="behind"
+            android:theme="@style/Theme_dialog" />
+        <activity
+            android:name=".ui.activitys.study.TraStudyActivity"
+            android:label="@string/title_activity_comment"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.ReleaseActivity"
+            android:label="@string/title_activity_release"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.AlbumActivity"
+            android:label="@string/title_activity_album"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.ReportActivity"
+            android:label="@string/title_activity_report"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.ExitActivity"
+            android:label="@string/title_activity_exit"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme_dialog" />
+        <activity
+            android:name=".ui.activitys.study.LookPicActivity"
+            android:label="@string/title_activity_look_pic"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.LookIndexActivity"
+            android:label="@string/title_activity_look_index"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.NetFileActivity"
+            android:label="@string/title_activity_net_file"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenFailActivity"
+            android:label="@string/title_activity_open_fail"
+            android:screenOrientation="portrait" />
+        <!-- android:screenOrientation="landscape"  全屏 但是有标题栏，所以不美观 -->
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenVideoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_open_video" />
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenVideo3Activity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenAudioActivity"
+            android:label="@string/title_activity_open_audio"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenTextFileActivity"
+            android:label="@string/title_activity_open_text_file"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.HomePageActivity"
+            android:label="@string/title_activity_home_page"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.owner.OwnerSaveActivity"
+            android:label="@string/title_activity_owner_save"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.CommentActivity"
+            android:label="@string/title_activity_comment"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.ReplyActivity"
+            android:label="@string/title_activity_reply"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.TraFriActivity"
+            android:label="@string/title_activity_tra_fri"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenPicActivity"
+            android:label="@string/title_activity_open_pic"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.StudySpaceActivity"
+            android:label="@string/title_activity_study_space"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenPhotoActivity"
+            android:label="@string/title_activity_open_photo"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.study.SelectGroupActivity"
+            android:label="@string/title_activity_select_group"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activitys.chat.SendCopyMessageActivity"
+            android:label="@string/title_activity_send_copy_message"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme_dialog" />
+        <activity
+            android:name=".ui.activitys.study.openfile.TxtActivity"
+            android:label="@string/title_activity_txt"
+            android:screenOrientation="portrait" />
+        <!-- 石中玉  end -->
+        <activity
+            android:name=".ui.activitys.study.openfile.OpenAlbumPicActivity"
+            android:label="@string/title_activity_open_album_pic" />
+
+        <activity
+            android:name=".ui.activitys.index.WebBxActivity"
+            android:exported="true"
+            android:label="@string/title_activity_web_bx"
+            android:screenOrientation="portrait">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="wx196178a067370555" />
+            </intent-filter>
+
+        </activity>
+
+        <activity
+            android:name=".ui.activitys.index.SignUpActivity"
+            android:label="@string/title_activity_sign_up"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".ui.activitys.index.PayMoneyActivity"
+            android:label="@string/title_activity_pay_money"></activity>
+        <activity
+            android:name=".wxapi.WXPayEntryActivity"
+            android:exported="true"
+            android:label="@string/title_activity_wxentry"
+            android:launchMode="singleTop" />
+        <activity
+            android:name=".ui.activitys.study.Scan2Activity"
+            android:screenOrientation="portrait" />
+
+
+        <!-- 支付宝-->
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind" />
+        <activity
+            android:name="com.alipay.sdk.auth.AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind" />
+        <!--支付宝 -->
+    </application>
+
+</manifest>

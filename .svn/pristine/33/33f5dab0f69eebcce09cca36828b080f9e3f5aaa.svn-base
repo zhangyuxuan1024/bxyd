@@ -1,0 +1,56 @@
+<net.iclassmate.xydspace.view.pullrefreshview.PullToRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/index_bx_pulltorefresh"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f9"
+    android:scrollbars="none"
+    tools:context="net.iclassmate.xydspace.ui.fragment.IndexFragment">
+
+    <include layout="@layout/pull_to_refresh_header" />
+
+    <net.iclassmate.xydspace.view.pullrefreshview.PullableScrollView
+        android:id="@+id/index_bx_pullscor"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="blocksDescendants"
+                android:orientation="vertical">
+
+                <com.stx.xhb.xbanner.XBanner xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/main_xBanner"
+                    android:layout_width="match_parent"
+                    android:layout_height="130dp"
+                    app:AutoPlayTime="2000"
+                    app:pointNormal="@mipmap/ic_huidian_banner"
+                    app:pointSelect="@mipmap/ic_landian_banner"
+                    app:pointsPosition="CENTER" />
+
+                <net.iclassmate.xydspace.view.FullListView
+                    android:id="@+id/listview_index_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:divider="#efefef"
+                    android:dividerHeight="1dp"
+                    android:scrollbars="none" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+            </LinearLayout>
+
+            <include layout="@layout/loding_anim" />
+        </FrameLayout>
+    </net.iclassmate.xydspace.view.pullrefreshview.PullableScrollView>
+
+    <include layout="@layout/pull_to_load_footer" />
+</net.iclassmate.xydspace.view.pullrefreshview.PullToRefreshLayout>

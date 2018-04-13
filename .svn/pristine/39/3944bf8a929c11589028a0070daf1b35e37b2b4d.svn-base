@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/window_main_linear"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="bottom"
+    android:background="@android:color/transparent"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.bxyd.ui.activitys.study.StudyWindowActivity">
+
+    <View
+        android:id="@+id/view_close"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <include layout="@layout/study_window_listview" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:background="#efefef" />
+
+    <TextView
+        android:id="@+id/study_window_tv_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:background="@drawable/window_bg_color"
+        android:gravity="center"
+        android:text="取消"
+        android:textColor="#202025"
+        android:textSize="15sp" />
+</LinearLayout>

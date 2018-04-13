@@ -1,0 +1,761 @@
+package net.iclassmate.bxyd.adapter.study;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.os.Handler;
+import android.text.SpannableString;
+import android.util.LruCache;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.bxyd.R;
+import net.iclassmate.bxyd.bean.study.CreateBy;
+import net.iclassmate.bxyd.bean.study.OriginBulletinInfo;
+import net.iclassmate.bxyd.bean.study.Resources;
+import net.iclassmate.bxyd.bean.study.StudyMessageItem;
+import net.iclassmate.bxyd.constant.Constant;
+import net.iclassmate.bxyd.utils.BitmapUtils;
+import net.iclassmate.bxyd.utils.DensityUtil;
+import net.iclassmate.bxyd.utils.FileUtils;
+import net.iclassmate.bxyd.utils.emotion.SpanStringUtils;
+import net.iclassmate.bxyd.view.study.ShapeImageView;
+
+import java.util.List;
+
+
+/**
+ * Created by xydbj on 2016/6/6.
+ */
+public class StudySpaceAdapter extends BaseAdapter {
+    private Context context;
+    private List<StudyMessageItem> list;
+    private int msgType;
+    private int totalType;
+    private int emotion_map_type = 0x0001;
+
+    private View.OnClickListener imgClickComent;
+    private View.OnClickListener imgClickLike;
+    private View.OnClickListener imgClickShare;
+    private View.OnClickListener imgClickHead;
+    private GridView.OnItemClickListener gridClick;
+    private View.OnClickListener imgClickHomePage;
+    private LruCache<String, Bitmap> lruCache;
+    private boolean isCanClickLike;
+    private Handler mHandler = new Handler();
+    private int userType;
+
+    private SharedPreferences sp;
+
+    public boolean isCanClickLike() {
+        return isCanClickLike;
+    }
+
+    public void setIsCanClickLike(boolean isCanClickLike) {
+        this.isCanClickLike = isCanClickLike;
+    }
+
+    public StudySpaceAdapter(Context context, List<StudyMessageItem> list) {
+        this.context = context;
+        this.list = list;
+        int maxMemory = (int) Runtime.getRuntime().maxMemory();
+        int mCacheSize = maxMemory / 4;
+        lruCache = new LruCache<String, Bitmap>(mCacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap value) {
+                return value.getRowBytes() * value.getHeight();
+            }
+        };
+        sp = context.getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+    }
+
+    public void setImgClickComent(View.OnClickListener imgClickComent) {
+        this.imgClickComent = imgClickComent;
+    }
+
+    public void setImgClickLike(View.OnClickListener imgClickLike) {
+        this.imgClickLike = imgClickLike;
+    }
+
+    public void setImgClickShare(View.OnClickListener imgClickShare) {
+        this.imgClickShare = imgClickShare;
+    }
+
+    public void setImgClickHead(View.OnClickListener imgClickHead) {
+        this.imgClickHead = imgClickHead;
+    }
+
+    public void setGridClick(GridView.OnItemClickListener gridClick) {
+        this.gridClick = gridClick;
+    }
+
+    public View.OnClickListener getImgClickHomePage() {
+        return imgClickHomePage;
+    }
+
+    public void setImgClickHomePage(View.OnClickListener imgClickHomePage) {
+        this.imgClickHomePage = imgClickHomePage;
+    }
+
+    public int getMsgType() {
+        return msgType;
+    }
+
+    public void setMsgType(int msgType) {
+        this.msgType = msgType;
+    }
+
+    @Override
+    public int getCount() {
+        int ret = 0;
+        if (list != null) {
+            ret = list.size();
+        }
+        return ret;
+    }
+
+    //ORIGIN:原创|FORWARD
+    @Override
+    public int getItemViewType(int position) {
+        int ret = 0;
+        StudyMessageItem item = list.get(position);
+        String bulletinType = item.getBulletinType();
+        bulletinType = bulletinType.toUpperCase();
+        if (bulletinType.equals("ORIGIN")) {
+            ret = 0;
+        } else if (bulletinType.equals("FORWARD")) {
+            ret = 1;
+        }
+        totalType = ret;
+        return ret;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return list.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
+    }
+
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
+        if (getItemViewType(i) == 0) {
+            view = bindView(i, view, viewGroup);
+        } else if (getItemViewType(i) == 1) {
+            view = bindViewForward(i, view, viewGroup);
+        }
+        return view;
+    }
+
+    //原创数据
+    public View bindView(int i, View view, ViewGroup viewGroup) {
+        ViewHolder holder = null;
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.study_space_item, viewGroup, false);
+            holder = new ViewHolder();
+            holder.img_head = (ShapeImageView) view.findViewById(R.id.study_space_item_head);
+            holder.tv_name = (TextView) view.findViewById(R.id.study_space_item_name);
+            holder.tv_time = (TextView) view.findViewById(R.id.study_space_item_time);
+            holder.tv_comment_count = (TextView) view.findViewById(R.id.study_space_item_comment_count);
+            holder.tv_like = (TextView) view.findViewById(R.id.study_space_item_like);
+            holder.gridView = (GridView) view.findViewById(R.id.study_space_item_gridview);
+            holder.img_comment = (ImageView) view.findViewById(R.id.study_space_item_comment_img);
+            holder.img_like = (ImageView) view.findViewById(R.id.study_space_item_like_img);
+            holder.img_share = (ImageView) view.findViewById(R.id.study_space_item_share);
+            holder.linearLayout = (LinearLayout) view.findViewById(R.id.study_space_item_linear);
+            holder.tv_commment = (TextView) view.findViewById(R.id.study_space_item_content);
+            holder.linear_home_page = (LinearLayout) view.findViewById(R.id.study_space_item_home_page_linear);
+            holder.adapter = new GridAdapter();
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
+        }
+        holder.gridView.setBackgroundColor(Color.WHITE);
+        StudyMessageItem msg = list.get(i);
+        holder.img_head.setTag(i);
+        holder.img_head.setImageResource(R.drawable.ic_geren_xuanren);
+
+        String url = "", name = "";
+        if (msg.getCreateBy() != null) {
+            url = msg.getCreateBy().getAvatar();
+            if (url == null || url.equals("")) {
+                url = "null";
+            }
+            if (url != null) {
+                String type = msg.getCreateBy().getType();
+                if (type != null && type.equals("org")) {
+                    Picasso.with(context).load(url).placeholder(R.drawable.ic_jigou_zhuyedongtai).error(R.drawable.ic_jigou_zhuyedongtai).resize(106, 106).into(holder.img_head);
+                } else {
+                    Picasso.with(context).load(url).placeholder(R.drawable.ic_geren_xuanren).error(R.drawable.ic_geren_xuanren).resize(106, 106).into(holder.img_head);
+                }
+            }
+            name = msg.getCreateBy().getName();
+            String id = msg.getCreateBy().getId();
+            String mid = sp.getString(Constant.ID_USER, "");
+            holder.tv_name.setText(name);
+        }
+        holder.tv_time.setText(FileUtils.getTime(msg.getCreatedOn()));
+        holder.tv_comment_count.setText(msg.getCommented() + "");
+        holder.tv_like.setText(msg.getLiked() + "");
+
+        String content = msg.getContent().trim();
+        if (content.equals("")) {
+            holder.tv_commment.setVisibility(View.GONE);
+        } else {
+            holder.tv_commment.setVisibility(View.VISIBLE);
+            SpannableString string = SpanStringUtils.getEmotionContent(emotion_map_type, context, holder.tv_commment, content);
+            holder.tv_commment.setText(string);
+        }
+
+        List<Resources> listStr = msg.getList();
+        int ret = 0;
+        holder.gridView.setVisibility(View.VISIBLE);
+        if (listStr == null || listStr.size() == 0) {
+            ret = 0;
+            holder.gridView.setVisibility(View.GONE);
+        } else if (listStr.size() == 1) {
+            ret = 1;
+        } else if (listStr.size() == 2 || listStr.size() == 4) {
+            ret = 2;
+        } else if (listStr.size() >= 3) {
+            ret = 3;
+        }
+
+        holder.gridView.setNumColumns(ret);
+        holder.gridView.setAdapter(holder.adapter);
+        holder.adapter.setData(listStr);
+        holder.adapter.notifyDataSetChanged();
+        holder.img_comment.setOnClickListener(imgClickComent);
+        holder.img_like.setOnClickListener(imgClickLike);
+        holder.tv_like.setOnClickListener(imgClickLike);
+        holder.img_share.setOnClickListener(imgClickShare);
+        holder.img_head.setOnClickListener(imgClickHead);
+        holder.gridView.setOnItemClickListener(gridClick);
+        holder.linearLayout.setOnClickListener(imgClickComent);
+        holder.linear_home_page.setOnClickListener(imgClickHead);
+        holder.linear_home_page.setTag(i);
+        holder.tv_like.setTag(i);
+        holder.gridView.setTag(i);
+        holder.img_comment.setTag(i);
+        holder.img_like.setTag(i);
+        holder.img_share.setTag(i);
+        holder.img_head.setTag(i);
+        holder.linearLayout.setTag(i);
+        if (msg.isClickLiked()) {
+            holder.img_like.setImageResource(R.mipmap.ic_great_clicked);
+            holder.tv_like.setTextColor(Color.parseColor("#ff6b6b"));
+        } else {
+            holder.img_like.setImageResource(R.mipmap.ic_great);
+            holder.tv_like.setTextColor(Color.parseColor("#c6c6c6"));
+        }
+        if (isCanClickLike) {
+            holder.img_like.setVisibility(View.VISIBLE);
+            holder.tv_like.setVisibility(View.VISIBLE);
+            holder.img_like.setClickable(true);
+            holder.tv_like.setClickable(true);
+        } else {
+            holder.img_like.setVisibility(View.INVISIBLE);
+            holder.tv_like.setVisibility(View.INVISIBLE);
+            holder.img_like.setClickable(false);
+            holder.tv_like.setClickable(false);
+        }
+        int msgType = getMsgType();
+        if (msgType == 1) {
+            holder.linearLayout.setVisibility(View.GONE);
+            holder.img_share.setVisibility(View.GONE);
+        }
+        return view;
+    }
+
+
+    //转发数据
+    public View bindViewForward(int i, View view, ViewGroup viewGroup) {
+        ViewHolder holder = null;
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.study_space_item_forward, viewGroup, false);
+            holder = new ViewHolder();
+            holder.img_head = (ShapeImageView) view.findViewById(R.id.study_space_item_head);
+            holder.tv_name = (TextView) view.findViewById(R.id.study_space_item_name);
+            holder.tv_time = (TextView) view.findViewById(R.id.study_space_item_time);
+            holder.tv_comment_count = (TextView) view.findViewById(R.id.study_space_item_comment_count);
+            holder.tv_like = (TextView) view.findViewById(R.id.study_space_item_like);
+            holder.gridView = (GridView) view.findViewById(R.id.study_space_item_gridview);
+            holder.img_comment = (ImageView) view.findViewById(R.id.study_space_item_comment_img);
+            holder.img_like = (ImageView) view.findViewById(R.id.study_space_item_like_img);
+            holder.img_share = (ImageView) view.findViewById(R.id.study_space_item_share);
+            holder.linearLayout = (LinearLayout) view.findViewById(R.id.study_space_item_linear);
+            holder.tv_commment = (TextView) view.findViewById(R.id.study_space_item_content);
+
+            holder.img_head_forward = (ShapeImageView) view.findViewById(R.id.study_space_item_forward_head);
+            holder.tv_name_forward = (TextView) view.findViewById(R.id.study_space_item_forward_name);
+            holder.tv_time_forward = (TextView) view.findViewById(R.id.study_space_item_forward_time);
+            holder.tv_content_forward = (TextView) view.findViewById(R.id.study_space_item_forward_content);
+            holder.linear_home_page = (LinearLayout) view.findViewById(R.id.study_space_item_home_page_linear);
+            holder.relative_com = (RelativeLayout) view.findViewById(R.id.study_space_item_com_relative);
+            holder.img_del = (ImageView) view.findViewById(R.id.img_del);
+            holder.adapter = new GridAdapter();
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
+        }
+        holder.gridView.setBackgroundColor(Color.parseColor("#efefef"));
+        StudyMessageItem msg = list.get(i);
+        Bitmap bm1 = BitmapUtils.stringtoBitmap("");
+        holder.img_head.setImageBitmap(bm1);
+        holder.img_head_forward.setImageBitmap(bm1);
+        holder.img_head.setImageResource(R.drawable.ic_geren_xuanren);
+        holder.img_head_forward.setImageResource(R.drawable.ic_geren_xuanren);
+
+        String url = "", name = "";
+        if (msg.getCreateBy() != null) {
+            url = msg.getCreateBy().getAvatar();
+            name = msg.getCreateBy().getName();
+            if (url != null) {
+                String type = msg.getCreateBy().getType();
+                if (type != null && type.equals("org")) {
+                    Picasso.with(context).load(url).placeholder(R.drawable.ic_jigou_zhuyedongtai).error(R.drawable.ic_jigou_zhuyedongtai).resize(106, 106).into(holder.img_head);
+                } else {
+                    Picasso.with(context).load(url).placeholder(R.drawable.ic_geren_xuanren).error(R.drawable.ic_geren_xuanren).resize(106, 106).into(holder.img_head);
+                }
+            }
+        }
+        String id = msg.getCreateBy().getId();
+        String mid = sp.getString(Constant.ID_USER, "");
+        holder.tv_name.setText(name);
+
+        holder.tv_time.setText(FileUtils.getTime(msg.getCreatedOn()));
+        holder.tv_comment_count.setText(msg.getCommented() + "");
+        holder.tv_like.setText(msg.getLiked() + "");
+
+        String content = msg.getContent().trim();
+        if (content.equals("")) {
+            holder.tv_commment.setVisibility(View.GONE);
+        } else {
+            holder.tv_commment.setVisibility(View.VISIBLE);
+            SpannableString string = SpanStringUtils.getEmotionContent(emotion_map_type, context, holder.tv_commment, content);
+            holder.tv_commment.setText(string);
+        }
+
+        //forward
+        OriginBulletinInfo info = msg.getOriginBulletinInfo();
+        if (info != null) {
+            content = "";
+            if (info.getContent() != null) {
+                content = info.getContent().trim();
+            }
+            if (content.equals("")) {
+                holder.tv_content_forward.setVisibility(View.GONE);
+            } else {
+                holder.tv_content_forward.setVisibility(View.VISIBLE);
+                SpannableString string = SpanStringUtils.getEmotionContent(emotion_map_type, context, holder.tv_content_forward, content);
+                holder.tv_content_forward.setText(string);
+            }
+            holder.tv_time_forward.setText(FileUtils.getTime(info.getCreatedOn()));
+            if (info.getCreateBy() != null) {
+                CreateBy by = info.getCreateBy();
+                holder.tv_name_forward.setText(by.getName());
+                url = by.getAvatar();
+                if (url == null || url.equals("")) {
+                    url = "null";
+                }
+                if (url != null) {
+                    String type = info.getCreateBy().getType();
+                    if (type != null && type.equals("org")) {
+                        Picasso.with(context).load(url).placeholder(R.drawable.ic_jigou_zhuyedongtai).error(R.drawable.ic_jigou_zhuyedongtai).resize(106, 106).into(holder.img_head_forward);
+                    } else {
+                        Picasso.with(context).load(url).placeholder(R.drawable.ic_geren_xuanren).error(R.drawable.ic_geren_xuanren).resize(106, 106).into(holder.img_head_forward);
+                    }
+                }
+            }
+
+            List<Resources> listStr = info.getList();
+            int ret = 0;
+            holder.gridView.setVisibility(View.VISIBLE);
+            if (listStr == null || listStr.size() == 0) {
+                ret = 0;
+                holder.gridView.setVisibility(View.GONE);
+            } else if (listStr.size() == 1) {
+                ret = 1;
+            } else if (listStr.size() == 2 || listStr.size() == 4) {
+                ret = 2;
+            } else if (listStr.size() >= 3) {
+                ret = 3;
+            }
+            holder.gridView.setNumColumns(ret);
+            holder.gridView.setAdapter(holder.adapter);
+            holder.adapter.setData(listStr);
+            holder.adapter.notifyDataSetChanged();
+        }
+        if (info != null && info.getCreateBy() != null) {
+            holder.relative_com.setVisibility(View.VISIBLE);
+            holder.img_del.setVisibility(View.GONE);
+        } else {
+            holder.relative_com.setVisibility(View.GONE);
+            holder.img_del.setVisibility(View.VISIBLE);
+        }
+
+        holder.img_comment.setOnClickListener(imgClickComent);
+        holder.img_like.setOnClickListener(imgClickLike);
+        holder.tv_like.setOnClickListener(imgClickLike);
+        holder.img_share.setOnClickListener(imgClickShare);
+        holder.img_head.setOnClickListener(imgClickHead);
+        holder.gridView.setOnItemClickListener(gridClick);
+        holder.linearLayout.setOnClickListener(imgClickComent);
+        holder.linear_home_page.setOnClickListener(imgClickHead);
+        holder.relative_com.setOnClickListener(imgClickHomePage);
+        holder.tv_like.setTag(i);
+        holder.relative_com.setTag(i);
+        holder.linear_home_page.setTag(i);
+        holder.gridView.setTag(i);
+        holder.img_comment.setTag(i);
+        holder.img_like.setTag(i);
+        holder.img_share.setTag(i);
+        holder.img_head.setTag(i);
+        holder.linearLayout.setTag(i);
+        if (msg.isClickLiked()) {
+            holder.img_like.setImageResource(R.mipmap.ic_great_clicked);
+            holder.tv_like.setTextColor(Color.parseColor("#ff6b6b"));
+        } else {
+            holder.img_like.setImageResource(R.mipmap.ic_great);
+            holder.tv_like.setTextColor(Color.parseColor("#c6c6c6"));
+        }
+        if (isCanClickLike) {
+            holder.img_like.setVisibility(View.VISIBLE);
+            holder.tv_like.setVisibility(View.VISIBLE);
+            holder.img_like.setClickable(true);
+            holder.tv_like.setClickable(true);
+        } else {
+            holder.img_like.setVisibility(View.INVISIBLE);
+            holder.tv_like.setVisibility(View.INVISIBLE);
+            holder.img_like.setClickable(false);
+            holder.tv_like.setClickable(false);
+        }
+        int msgType = getMsgType();
+        if (msgType == 1) {
+            holder.linearLayout.setVisibility(View.GONE);
+            holder.img_share.setVisibility(View.GONE);
+        }
+        return view;
+    }
+
+    public int getUserType() {
+        return userType;
+    }
+
+    public void setUserType(int userType) {
+        this.userType = userType;
+    }
+
+    class ViewHolder {
+        ShapeImageView img_head, img_head_forward;
+        ImageView img_comment, img_like, img_share, img_del;
+        TextView tv_name, tv_time, tv_commment, tv_comment_count, tv_like;
+        GridView gridView;
+        LinearLayout linearLayout, linear_home_page;
+        RelativeLayout relative_com;
+        TextView tv_name_forward, tv_time_forward, tv_content_forward;
+        GridAdapter adapter;
+    }
+
+    class GridAdapter extends BaseAdapter {
+        private List<Resources> picList;
+
+        //        public GridAdapter(List<Resources> picList) {
+//            this.picList = picList;
+//        }
+        public void setData(List<Resources> picList) {
+            this.picList = picList;
+        }
+
+        @Override
+        public int getCount() {
+            int ret = 0;
+            if (picList != null) {
+                ret = picList.size();
+            }
+            return ret;
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return picList.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 2;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            int ret = 0;
+            Resources resources = picList.get(position);
+            String type = resources.getType();
+            if (type != null && type.equals("图片")) {
+                ret = 0;
+            } else {
+                ret = 1;
+            }
+            return ret;
+        }
+
+        private int getGridType(int position) {
+            int ret = 0;
+            if (picList.size() == 0) {
+                ret = 0;
+            } else if (picList.size() == 1) {
+                ret = 1;
+            } else if (picList.size() == 2 || picList.size() == 4) {
+                ret = 2;
+            } else if (picList.size() >= 3) {
+                ret = 3;
+            }
+            return ret;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            if (getItemViewType(i) == 0) {
+                view = bindPicView(i, view, viewGroup);
+            } else if (getItemViewType(i) == 1) {
+                view = bindFileView(i, view, viewGroup);
+            }
+            return view;
+        }
+
+        public View bindPicView(int position, View view, ViewGroup viewGroup) {
+            PicHolder holder = null;
+            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            int width = wm.getDefaultDisplay().getWidth() - DensityUtil.dip2px(context, 118);
+            int height = wm.getDefaultDisplay().getHeight();
+            if (totalType == 1) {
+                width = wm.getDefaultDisplay().getWidth() - DensityUtil.dip2px(context, 171);
+            }
+            int type = getGridType(position);
+
+            if (view == null) {
+                view = LayoutInflater.from(context).inflate(R.layout.study_space_item_image, viewGroup, false);
+                if (type > 0) {
+                    if (type == 1) {
+                        if (totalType == 0) {
+                            view.setLayoutParams(new GridView.LayoutParams((int) context.getResources().getDimension(R.dimen.view_109), (int) context.getResources().getDimension(R.dimen.view_109)));
+                        } else if (totalType == 1) {
+                            view.setLayoutParams(new GridView.LayoutParams((int) context.getResources().getDimension(R.dimen.view_109), (int) context.getResources().getDimension(R.dimen.view_109)));
+                        }
+                    } else {
+                        view.setLayoutParams(new GridView.LayoutParams(width / type, width / type));
+                    }
+                }
+                holder = new PicHolder();
+                holder.img = (ImageView) view.findViewById(R.id.study_space_item_img);
+                holder.frameLayout = (RelativeLayout) view.findViewById(R.id.img_frame);
+                view.setTag(holder);
+            } else {
+                holder = (PicHolder) view.getTag();
+            }
+            if (totalType == 0) {
+//                if (type == 1) {
+//                    para.width = (int) context.getResources().getDimension(R.dimen.view_109);
+//                    para.height = (int) context.getResources().getDimension(R.dimen.view_109);
+//                } else if (type == 2) {
+//                    para.width = width / 2;
+//                    para.height = width / 2;
+//                } else if (type == 3) {
+//                    para.width = width / 3;
+//                    para.height = width / 3;
+//                }
+//                holder.img.setLayoutParams(para);
+                holder.frameLayout.setBackgroundColor(Color.parseColor("#efefef"));
+            } else if (totalType == 1) {
+//                width = wm.getDefaultDisplay().getWidth() - DensityUtil.dip2px(context, 160);
+//                if (type == 1) {
+//                    para.width = (int) context.getResources().getDimension(R.dimen.view_109);
+//                    para.height = (int) context.getResources().getDimension(R.dimen.view_109);
+//                } else if (type == 2) {
+//                    para.width = width / 2;
+//                    para.height = width / 2;
+//                } else if (type == 3) {
+//                    para.width = width / 3;
+//                    para.height = width / 3;
+//                }
+//                holder.img.setLayoutParams(para);
+                holder.frameLayout.setBackgroundColor(Color.parseColor("#ccccd2"));
+            }
+            //Picasso.with(context).load(picList.get(i)).resize(para.width, para.height).into(holder.img);
+            Resources resources = picList.get(position);
+            String url = resources.getImage();
+            if (url != null) {
+                if (!url.contains("base64")) {
+                    if (url.contains("@")) {
+                        int index = url.lastIndexOf("@");
+                        // url = url.substring(0, index);
+                    }
+                    Picasso.with(context).load(url).placeholder(R.drawable.img_morentupian)
+                            .config(Bitmap.Config.RGB_565)
+                            .into(holder.img);
+                } else {
+                    url = url.substring(url.indexOf("base64") + 7);
+                    Bitmap bm = BitmapUtils.stringtoBitmap(url);
+                    holder.img.setImageBitmap(bm);
+                }
+            }
+            String id = resources.getId();
+            if (id == null || id.equals("-1")) {
+                holder.img.setImageResource(R.drawable.img_shanchu_wenjian);
+            }
+            return view;
+        }
+
+        public View bindFileView(int position, View view, ViewGroup viewGroup) {
+            FileHolder holder = null;
+            WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            int width = wm.getDefaultDisplay().getWidth() - DensityUtil.dip2px(context, 118);
+            int height = wm.getDefaultDisplay().getHeight();
+            if (totalType == 1) {
+                width = wm.getDefaultDisplay().getWidth() - DensityUtil.dip2px(context, 171);
+            }
+            int type = getGridType(position);
+            if (view == null) {
+                view = LayoutInflater.from(context).inflate(R.layout.study_listview_grid_item, viewGroup, false);
+                if (type > 0) {
+                    if (type == 1) {
+                        if (totalType == 0) {
+                            view.setLayoutParams(new GridView.LayoutParams((int) context.getResources().getDimension(R.dimen.view_109), (int) context.getResources().getDimension(R.dimen.view_109)));
+                        } else if (totalType == 1) {
+                            view.setLayoutParams(new GridView.LayoutParams((int) context.getResources().getDimension(R.dimen.view_109), (int) context.getResources().getDimension(R.dimen.view_109)));
+                        }
+                    } else {
+                        view.setLayoutParams(new GridView.LayoutParams(width / type, width / type));
+                    }
+                }
+                holder = new FileHolder();
+                holder.img = (ImageView) view.findViewById(R.id.grid_item_img);
+                holder.tv_name = (TextView) view.findViewById(R.id.grid_item_tv);
+                holder.relativeLayout = (RelativeLayout) view.findViewById(R.id.item_relative);
+                view.setTag(holder);
+            } else {
+                holder = (FileHolder) view.getTag();
+            }
+            Resources resources = picList.get(position);
+            String name = resources.getName();
+            String url = resources.getImage();
+            setImage(holder.img, name, url);
+            if (name.contains(".")) {
+                name = name.substring(0, name.indexOf("."));
+            }
+            holder.tv_name.setText(name);
+
+            if (totalType == 0) {
+                holder.relativeLayout.setBackgroundColor(Color.parseColor("#efefef"));
+            } else if (totalType == 1) {
+                holder.relativeLayout.setBackgroundColor(Color.parseColor("#ccccd2"));
+            }
+            return view;
+        }
+
+        public void setImage(ImageView img, String name, String url) {
+            if (name.contains(".")) {
+                name = name.substring(name.lastIndexOf(".") + 1, name.length());
+            }
+            name = name.toLowerCase();
+            switch (name) {
+                case "doc":
+                case "docx":
+                case "txt":
+                case "wps":
+                    img.setImageResource(R.drawable.ic_wendang02);
+                    break;
+                case "pdf":
+                    img.setImageResource(R.drawable.ic_pdf);
+                    break;
+                case "wav":
+                case "mp3":
+                case "wma":
+                case "wva":
+                case "ogg":
+                case "ape":
+                case "aif":
+                case "au":
+                case "ram":
+                case "mmf":
+                case "amr":
+                case "aac":
+                case "flac":
+                    img.setImageResource(R.drawable.ic_yinpin02);
+                    break;
+                case "xls":
+                case "xlsx":
+                case "et":
+                    img.setImageResource(R.drawable.ic_biaoge02);
+                    break;
+                case "ppt":
+                case "pptx":
+                case "dps":
+                    img.setImageResource(R.drawable.ic_ppt);
+                    break;
+                case "avi":
+                case "mpg":
+                case "mpeg":
+                case "mov":
+                case "rm":
+                case "rmvb":
+                case "mp4":
+                case "3gp":
+                case "flv":
+                case "wmv":
+                    if (url != null) {
+                        if (!url.contains("base64")) {
+                            if (url.contains("@")) {
+                                int index = url.indexOf("@");
+                                url = url.substring(0, index);
+                            }
+                            Picasso.with(context).load(url).placeholder(R.drawable.img_morentupian).config(Bitmap.Config.RGB_565).into(img);
+                        } else {
+                            url = url.substring(url.indexOf("base64") + 7);
+                            Bitmap bm = BitmapUtils.stringtoBitmap(url);
+                            img.setImageBitmap(bm);
+                        }
+                    }
+                    break;
+                default:
+                    img.setImageResource(R.drawable.ic_qita);
+                    break;
+            }
+        }
+    }
+
+    class PicHolder {
+        ImageView img;
+        RelativeLayout frameLayout;
+    }
+
+    class FileHolder {
+        ImageView img;
+        TextView tv_name;
+        RelativeLayout relativeLayout;
+    }
+}

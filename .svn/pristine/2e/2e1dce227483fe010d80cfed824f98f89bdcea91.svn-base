@@ -1,0 +1,124 @@
+package net.iclassmate.xydspace.bean.message;
+
+import net.iclassmate.xydspace.bean.study.Parserable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+
+/**
+ * Created by xydbj on 2016/8/2.
+ */
+public class UserInfo implements Serializable, Parserable {
+    /**
+     * capacity : 100
+     * fsRoot : 53f7a60dccae4a6092b2cdd1be2ec08e
+     * name : 兰付
+     * phone : 18823456789
+     * ryToken : GrGhHnFt3TQirL2ffQQbfXBCNtWRky9pVYYQnDySzuTdIP+opQuhfNGTn0QXsPDSol5EeUuCZkVa+N8pX36UH3NojZcETw1A4KsY7aENTVcLZZGUKuns/58TxiUHobgRUIRCaBajs4U=
+     * searchMe : 1
+     * userCode : 697139
+     * userType : 1
+     */
+
+    private String capacity;
+    private String fsRoot;
+    private String name;
+    private String phone;
+    private String ryToken;
+    private String searchMe;
+    private String userCode;
+    private String userType;
+
+    @Override
+    public void parserJson(JSONObject json) {
+        if (json != null) {
+            try {
+                capacity = json.getString("capacity");
+                fsRoot = json.getString("fsRoot");
+                name = json.getString("name");
+                phone = json.getString("phone");
+                ryToken = json.getString("ryToken");
+                searchMe = json.getString("searchMe");
+                userCode = json.getString("userCode");
+                userType = json.getString("userType");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void setCapacity(String capacity) {
+        this.capacity = capacity;
+    }
+
+    public void setFsRoot(String fsRoot) {
+        this.fsRoot = fsRoot;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setRyToken(String ryToken) {
+        this.ryToken = ryToken;
+    }
+
+    public void setSearchMe(String searchMe) {
+        this.searchMe = searchMe;
+    }
+
+    public void setUserCode(String userCode) {
+        this.userCode = userCode;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    public String getCapacity() {
+        return capacity;
+    }
+
+    public String getFsRoot() {
+        return fsRoot;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getRyToken() {
+        return ryToken;
+    }
+
+    public String getSearchMe() {
+        return searchMe;
+    }
+
+    public String getUserCode() {
+        return userCode;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "name='" + name + '\'' +
+                ", userCode='" + userCode + '\'' +
+                ", phone='" + phone + '\'' +
+                '}';
+    }
+}

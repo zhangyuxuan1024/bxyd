@@ -1,0 +1,139 @@
+package net.iclassmate.xydspace.ui.activity.study;
+
+import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.adapter.study.TraFriAdapter;
+import net.iclassmate.xydspace.bean.study.group.Group;
+import net.iclassmate.xydspace.bean.study.group.GroupItem;
+import net.iclassmate.xydspace.constant.Constant;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class SelectGroupActivity extends FragmentActivity implements View.OnClickListener {
+    private TextView tv_back;
+    private ListView listView;
+    private String userid;
+    private ImageView img_anim;
+    private AnimationDrawable anim;
+    private SharedPreferences sharedPreferences;
+    private List<Object> list;
+    private TraFriAdapter adapter;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            int what = msg.what;
+            anim.stop();
+            img_anim.setVisibility(View.GONE);
+            switch (what) {
+                case 1:
+                    int code = msg.arg1;
+                    String ret = (String) msg.obj;
+                    if (code == 200) {
+                        Group group = new Group();
+                        try {
+                            JSONObject json = new JSONObject(ret);
+                            group.parserJson(json);
+                            List<GroupItem> list1 = group.getList();
+                            if (list1.size() == 0) {
+                                img_anim.setVisibility(View.VISIBLE);
+                                img_anim.setImageResource(R.mipmap.ic_no_result);
+                            } else {
+                                list.addAll(list1);
+                                adapter.notifyDataSetChanged();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        img_anim.setVisibility(View.VISIBLE);
+                        img_anim.setImageResource(R.mipmap.img_jiazaishibai);
+                    }
+                    break;
+                case 404:
+                    img_anim.setVisibility(View.VISIBLE);
+                    img_anim.setImageResource(R.mipmap.img_jiazaishibai);
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_select_group);
+        sharedPreferences = getSharedPreferences(Constant.SHARED_PREFERENCES, MODE_PRIVATE);
+        userid = sharedPreferences.getString(Constant.ID_USER, "");
+
+        init();
+        loadData();
+    }
+
+    private void init() {
+        tv_back = (TextView) findViewById(R.id.tra_group_back);
+        tv_back.setOnClickListener(this);
+        img_anim = (ImageView) findViewById(R.id.img_anim);
+        anim = (AnimationDrawable) img_anim.getBackground();
+        anim.start();
+        listView = (ListView) findViewById(R.id.tra_group_listview);
+        list = new ArrayList<>();
+        adapter = new TraFriAdapter(this, list);
+        listView.setAdapter(adapter);
+    }
+
+    private void loadData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                String url = String.format(Constant.STUDY_GET_GROUP, userid);
+                Request request = new Request.Builder().url(url).build();
+                //Log.i("info", "群组列表=" + url);
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    if (response.isSuccessful()) {
+                        Message msg = new Message();
+                        msg.what = 1;
+                        msg.arg1 = response.code();
+                        msg.obj = response.body().string();
+                        mHandler.sendMessage(msg);
+                    } else {
+                        mHandler.sendEmptyMessage(404);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    mHandler.sendEmptyMessage(404);
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tra_group_back:
+                this.finish();
+                break;
+        }
+    }
+}

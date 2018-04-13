@@ -1,0 +1,65 @@
+package net.iclassmate.xydspace.ui.activity.chat;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.Window;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.view.TitleBar;
+
+public class ChatFileActivity extends FragmentActivity implements TitleBar.TitleOnClickListener{
+
+    private Context mContext;
+    private TitleBar titleBar;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_chat_file);
+        mContext=this;
+        initView();
+        initListener();
+        initData();
+    }
+
+    private void initView() {
+        titleBar= (TitleBar) findViewById(R.id.chat_file_bar);
+        titleBar.setTitle("聊天文件");
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui,"返回");
+        titleBar.setRightIcon("取消");
+    }
+
+    private void initListener() {
+        titleBar.setTitleClickListener(this);
+    }
+
+    private void initData() {
+
+    }
+
+    @Override
+    public void leftClick() {
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+}

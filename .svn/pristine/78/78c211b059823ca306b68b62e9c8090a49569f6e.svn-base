@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#f5f5f9">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#393f4f">
+
+        <ImageView
+            android:id="@+id/changepassword_iv_back"
+            android:layout_width="10dp"
+            android:layout_height="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_fanhui" />
+
+        <TextView
+            android:id="@+id/changepassword_tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="20.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="6.5dp"
+            android:layout_toRightOf="@+id/changepassword_iv_back"
+            android:text="返回"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="修改密码"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44.5dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/changepassword_iv_oldpassword"
+            android:layout_width="10dp"
+            android:layout_height="13dp"
+            android:src="@mipmap/ic_mima"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dp" />
+        <TextView
+            android:id="@+id/changepassword_tv_oldpassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="原密码"
+            android:layout_centerVertical="true"
+            style="@style/boundphonenum_tv"
+            android:layout_toRightOf="@+id/changepassword_iv_oldpassword"
+            android:layout_marginLeft="7.5dp"/>
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="32.5dp"
+            android:background="#ccccd2"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/changepassword_tv_oldpassword"
+            android:layout_marginLeft="10dp"/>
+        <EditText
+            android:id="@+id/changepassword_et_oldpassword"
+            android:layout_width="match_parent"
+            android:layout_height="45.5dp"
+            android:layout_toRightOf="@+id/changepassword_tv_oldpassword"
+            android:layout_marginLeft="20dp"
+            android:background="@null"
+            android:password="true"
+            android:layout_centerVertical="true"
+            android:hint="请输入您现在使用的密码"
+            style="@style/boundphonenum_hint"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44.5dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/changepassword_iv_newpassword"
+            android:layout_width="10dp"
+            android:layout_height="13dp"
+            android:src="@mipmap/ic_mima"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dp"/>
+
+        <TextView
+            android:id="@+id/changepassword_tv_newpassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="新密码"
+            android:layout_centerVertical="true"
+            style="@style/boundphonenum_tv"
+            android:layout_toRightOf="@+id/changepassword_iv_newpassword"
+            android:layout_marginLeft="7.5dp"/>
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="32.5dp"
+            android:background="#ccccd2"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/changepassword_tv_newpassword"
+            android:layout_marginLeft="10dp" />
+
+        <EditText
+            android:id="@+id/changepassword_et_newpassword"
+            android:layout_width="match_parent"
+            android:layout_height="45.5dp"
+            android:layout_toRightOf="@+id/changepassword_tv_newpassword"
+            android:layout_marginLeft="20dp"
+            android:background="@null"
+            android:password="true"
+            android:maxLength="12"
+            android:layout_centerVertical="true"
+            android:hint="6-12位字符组合，区分大小写"
+            style="@style/boundphonenum_hint"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="44.5dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/changepassword_iv_confirm"
+            android:layout_width="10dp"
+            android:layout_height="13dp"
+            android:src="@mipmap/ic_mima"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dp"/>
+
+        <TextView
+            android:id="@+id/changepassword_tv_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="确    认"
+            android:layout_centerVertical="true"
+            style="@style/boundphonenum_tv"
+            android:layout_toRightOf="@+id/changepassword_iv_confirm"
+            android:layout_marginLeft="7.5dp"/>
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="32.5dp"
+            android:background="#ccccd2"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/changepassword_tv_confirm"
+            android:layout_marginLeft="10dp" />
+
+        <EditText
+            android:id="@+id/changepassword_et_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="45.5dp"
+            android:layout_toRightOf="@+id/changepassword_tv_confirm"
+            android:layout_marginLeft="20dp"
+            android:background="@null"
+            android:layout_centerVertical="true"
+            android:maxLength="12"
+            android:password="true"
+            android:hint="请再输入一遍新密码确认"
+            style="@style/boundphonenum_hint"/>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/changepassword_iv_submit"
+        android:layout_width="345dp"
+        android:layout_height="45dp"
+        android:src="@drawable/submit_selector"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="41.5dp"/>
+
+</LinearLayout>

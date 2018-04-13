@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:background="@color/white"
+        >
+
+        <ImageView
+            android:id="@+id/find_person_icon"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@mipmap/ic_qunzu_xuanren"
+          android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            />
+
+        <TextView
+            android:id="@+id/find_person_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="柳羽凡"
+            android:textColor="#202025"
+            android:textSize="15sp"
+            android:layout_marginTop="6dp"
+            android:layout_toRightOf="@+id/find_person_icon"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:id="@+id/find_person_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="手机号：13566668888"
+            android:textColor="#8c8c98"
+            android:textSize="12sp"
+            android:layout_toRightOf="@+id/find_person_icon"
+            android:layout_below="@+id/find_person_name"
+            android:layout_marginLeft="10dp"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

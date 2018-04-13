@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/white"
+        >
+
+        <net.iclassmate.xydspace.view.study.ShapeImageView
+            android:id="@+id/user_icon"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#202025"
+            android:textSize="15sp"
+            android:layout_toRightOf="@+id/user_icon"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="10dp"/>
+        <TextView
+            android:id="@+id/user_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#8c8c98"
+            android:textSize="12sp"
+            android:layout_toRightOf="@+id/user_icon"
+            android:layout_below="@+id/user_name"
+            android:layout_marginLeft="10dp"/>
+
+    </RelativeLayout>
+</LinearLayout>

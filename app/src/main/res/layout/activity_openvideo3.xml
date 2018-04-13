@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+
+    <io.vov.vitamio.widget.CenterLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <io.vov.vitamio.widget.VideoView
+            android:id="@+id/openvideo3_vv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </io.vov.vitamio.widget.CenterLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="#e0000000">
+
+        <ImageButton
+            android:id="@+id/openvideo3_back"
+            android:layout_width="10dp"
+            android:layout_height="15dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="14dp"
+            android:background="@null"
+            android:src="@mipmap/ic_fanhui" />
+
+        <TextView
+            android:id="@+id/openvideo3_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/openvideo3_setting"
+            android:layout_toRightOf="@+id/openvideo3_back"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
+
+        <ImageView
+            android:id="@+id/openvideo3_setting"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="11dp"
+            android:padding="4dp"
+            android:src="@mipmap/ic_shezhi_shipinbofang" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom"
+        android:background="#e0000000">
+
+        <ImageButton
+            android:id="@+id/openvideo3_play_or_stop"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="7dp"
+            android:padding="9dp"
+            android:background="@null"/>
+
+        <TextView
+            android:id="@+id/openvideo3_now_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="3dp"
+            android:layout_toRightOf="@+id/openvideo3_play_or_stop"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:text="\t\t\t\t"/>
+
+        <SeekBar
+            android:id="@+id/openvideo3_seekbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/openvideo3_all_time"
+            android:layout_toRightOf="@+id/openvideo3_now_time"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@null"
+            android:maxHeight="2dp"
+            android:minHeight="2dp"
+            android:progressDrawable="@drawable/video_seekbar"
+            android:thumb="@drawable/background_thumb" />
+
+        <TextView
+            android:id="@+id/openvideo3_all_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/openvideo3_max_or_min"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:text="\t\t\t\t"/>
+
+        <ImageView
+            android:id="@+id/openvideo3_max_or_min"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:padding="9dp"
+            android:src="@mipmap/ic_zuidahua" />
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/openvideo3_loading"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center" />
+
+</FrameLayout>

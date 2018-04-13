@@ -1,0 +1,15 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.xydspace.ui.activitys.study.LookPicActivity">
+
+    <include layout="@layout/study_title" />
+
+    <net.iclassmate.xydspace.view.study.PhotoViewPager
+        android:id="@+id/pager_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

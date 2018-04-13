@@ -1,0 +1,83 @@
+package net.iclassmate.xydspace.adapter;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.contacts.Group;
+import net.iclassmate.xydspace.bean.contacts.GroupInfo;
+import net.iclassmate.xydspace.constant.Constant;
+
+/**
+ * Created by xyd on 2016/7/5.
+ */
+public class GroupListAdapter extends BaseAdapter {
+    private Context mContext;
+    private Group group;
+
+    public GroupListAdapter(Context mContext, Group group) {
+        this.mContext = mContext;
+        this.group = group;
+    }
+
+    @Override
+    public int getCount() {
+        return group.getList().size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return group.getList().get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder = null;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.contacts_item, null);
+            holder = new ViewHolder();
+            holder.tvName = (TextView) convertView.findViewById(R.id.contacts_person_name);
+            holder.imageIcon = (ImageView) convertView.findViewById(R.id.contacts_person_icon);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        GroupInfo groupInfo = group.getList().get(position);
+        holder.tvName.setText(groupInfo.getSessionName());
+        int sessionType = groupInfo.getSessionType();
+        String url = groupInfo.getSessionId();
+        if (url != null) {
+            url = String.format(Constant.STUDY_GET_USER_PIC, url);
+        }
+        if (sessionType == 2) {
+            Picasso.with(mContext).load(url).resize((int) mContext.getResources().getDimension(R.dimen.view_43),
+                    (int) mContext.getResources().getDimension(R.dimen.view_43))
+                    .placeholder(R.mipmap.ic_qunliao).error(R.mipmap.ic_qunliao).config(Bitmap.Config.RGB_565).into(holder.imageIcon);
+        } else if (sessionType == 3) {
+            Picasso.with(mContext).load(url).resize((int) mContext.getResources().getDimension(R.dimen.view_43),
+                    (int) mContext.getResources().getDimension(R.dimen.view_43))
+                    .placeholder(R.mipmap.ic_qunzu_xuanren).error(R.mipmap.ic_qunzu_xuanren).config(Bitmap.Config.RGB_565).into(holder.imageIcon);
+        } else if(sessionType == 1){
+            Picasso.with(mContext).load(url).placeholder(R.mipmap.ic_qunzu_xuanren).error(R.mipmap.ic_qunzu_xuanren).config(Bitmap.Config.RGB_565).into(holder.imageIcon);
+        }
+        return convertView;
+    }
+
+    class ViewHolder {
+        TextView tvName;
+        ImageView imageIcon;
+    }
+}

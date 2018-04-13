@@ -1,0 +1,173 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#efefef"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.bxyd.ui.activitys.owner.HomePageActivity">
+
+    <include layout="@layout/study_title" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <net.iclassmate.bxyd.view.pullrefreshview.PullToRefreshLayout
+                android:id="@+id/pull"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#eeeeee">
+
+                <include layout="@layout/pull_to_refresh_header" />
+
+                <net.iclassmate.bxyd.view.pullrefreshview.PullableScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fillViewport="true"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:descendantFocusability="blocksDescendants"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="175dp">
+
+                            <ImageView
+                                android:id="@+id/img_home_title_bg"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:scaleType="fitXY"
+                                android:src="@mipmap/img_bg2" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:background="@drawable/study_user_circle_head_out"
+                                android:orientation="horizontal"
+                                android:padding="3dp">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:background="#0FFF"
+                                    android:orientation="horizontal"
+                                    android:padding="5dp">
+
+                                    <LinearLayout
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center"
+                                        android:background="@drawable/study_user_circle_head"
+                                        android:orientation="horizontal"
+                                        android:padding="2dp">
+
+                                        <net.iclassmate.bxyd.view.study.ShapeImageView
+                                            android:id="@+id/study_user_img"
+                                            android:layout_width="60dp"
+                                            android:layout_height="60dp"
+                                            android:layout_gravity="center"
+                                            android:src="@mipmap/ic_head_xuexiquan" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/study_message_linear"
+                                android:layout_width="wrap_content"
+                                android:layout_height="32dp"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="65dp"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/study_message_tv"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginLeft="19dp"
+                                    android:text="6条消息"
+                                    android:textColor="@color/white"
+                                    android:textSize="14sp"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="14dp"
+                                    android:scaleType="fitXY"
+                                    android:src="@mipmap/ic_next"
+                                    android:visibility="gone" />
+
+                                <ImageView
+                                    android:id="@+id/study_sapce_jia_img"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:src="@mipmap/bt_quxiaoguanzhu_zhuye" />
+                            </LinearLayout>
+
+
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/white"
+                            android:orientation="vertical">
+
+                            <ImageView
+                                android:id="@+id/img_organization"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:scaleType="fitXY"
+                                android:src="@mipmap/img_jigouzhuye"
+                                android:visibility="gone" />
+
+                            <net.iclassmate.bxyd.view.FullListView
+                                android:id="@+id/study_sapce_listview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/white"
+                                android:divider="#efefef"
+                                android:dividerHeight="1dp"
+                                android:listSelector="@color/white"
+                                android:scrollbars="none" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </net.iclassmate.bxyd.view.pullrefreshview.PullableScrollView>
+
+                <include layout="@layout/pull_to_load_footer" />
+            </net.iclassmate.bxyd.view.pullrefreshview.PullToRefreshLayout>
+
+        </LinearLayout>
+
+        <include layout="@layout/loding_anim" />
+
+        <ImageView
+            android:id="@+id/img_study_release"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_marginBottom="72dp"
+            android:layout_marginRight="15dp"
+            android:clickable="false"
+            android:src="@mipmap/ic_bianji_zhuyedongtai"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

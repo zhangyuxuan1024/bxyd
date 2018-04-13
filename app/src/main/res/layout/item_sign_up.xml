@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp">
+
+    <TextView
+        android:id="@+id/sign_tv_person"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:gravity="left|center_vertical"
+        android:text="参加人信息"
+        android:textColor="#202025"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#efefef" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="43dp"
+            android:background="#f5f5f5"
+            android:gravity="center"
+            android:text="真实姓名"
+            android:textColor="#8c8c98"
+            android:textSize="12sp" />
+
+        <EditText
+            android:id="@+id/sign_et_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:hint="请输入真实姓名"
+            android:paddingLeft="16sp"
+            android:textColor="#202025"
+            android:textColorHint="#ccccde"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#efefef" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="43dp"
+            android:background="#f5f5f5"
+            android:gravity="center"
+            android:text="性别"
+            android:textColor="#8c8c98"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:id="@+id/img_male"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:scaleType="fitXY"
+                android:src="@mipmap/ic_checked" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="男"
+                android:textColor="#202025"
+                android:textSize="13sp" />
+
+            <ImageView
+                android:id="@+id/img_female"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_marginLeft="27dp"
+                android:scaleType="fitXY"
+                android:src="@mipmap/ic_unchecked" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="5dp"
+                android:text="女"
+                android:textColor="#202025"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#efefef" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="43dp"
+            android:background="#f5f5f5"
+            android:gravity="center"
+            android:text="手机号"
+            android:textColor="#8c8c98"
+            android:textSize="12sp" />
+
+        <EditText
+            android:id="@+id/sign_et_phone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:hint="请输入手机号码"
+            android:paddingLeft="16sp"
+            android:textColor="#202025"
+            android:textColorHint="#ccccde"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#efefef" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="43dp"
+            android:background="#f5f5f5"
+            android:gravity="center"
+            android:text="证件号"
+            android:textColor="#8c8c98"
+            android:textSize="12sp" />
+
+        <EditText
+            android:id="@+id/sign_et_id"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:hint="请输入证件号码"
+            android:paddingLeft="16sp"
+            android:textColor="#202025"
+            android:textColorHint="#ccccde"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#efefef" />
+</LinearLayout>

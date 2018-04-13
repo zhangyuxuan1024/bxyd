@@ -1,0 +1,282 @@
+package net.iclassmate.xydspace.ui.activitys.study.openfile;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.utils.NetWorkUtils;
+import net.iclassmate.xydspace.view.study.ZoomImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.List;
+
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
+import io.rong.imlib.model.UserInfo;
+import io.rong.message.ImageMessage;
+
+public class OpenPhotoActivity extends FragmentActivity implements View.OnClickListener {
+    private String picPath;
+    private boolean ischeck;
+    private int count;
+    private ZoomImageView img;
+    private ImageView img_check, img_back;
+    private TextView tv_back, tv_right, tv_title;
+    private Context mContext;
+
+    //是否发送照片
+    private boolean sendpic;
+    private List<Object> list;
+    private SharedPreferences sharedPreferences;
+    private int chatType;
+    private String targetId;
+
+    public static final String NEW_MESSAGE = "NEW_MESSAGE";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_open_photo);
+
+        Intent intent = getIntent();
+        picPath = intent.getStringExtra("path");
+        ischeck = intent.getBooleanExtra("check", false);
+        count = intent.getIntExtra("count", 0);
+
+        sendpic = intent.getBooleanExtra("send", false);
+        if (sendpic) {
+            list = (List<Object>) intent.getSerializableExtra("list");
+            chatType = intent.getIntExtra("chatType", 0);
+            targetId = intent.getStringExtra("tid");
+        }
+        sharedPreferences = getSharedPreferences(Constant.SHARED_PREFERENCES, MODE_PRIVATE);
+        init();
+    }
+
+    private void init() {
+        mContext = this;
+        img_back = (ImageView) findViewById(R.id.study_message_back);
+        img_back.setOnClickListener(this);
+        tv_back = (TextView) findViewById(R.id.study_message_left_tv);
+        tv_back.setOnClickListener(this);
+        tv_back.setText("返回");
+        tv_title = (TextView) findViewById(R.id.study_message_title_tv);
+        tv_title.setText("");
+        tv_right = (TextView) findViewById(R.id.study_message_right_tv);
+        tv_right.setVisibility(View.VISIBLE);
+        if (count > 0) {
+            tv_right.setText("确定(" + count + ")");
+        } else {
+            tv_right.setText("确定");
+        }
+        tv_right.setTextColor(Color.parseColor("#65caff"));
+        tv_right.setOnClickListener(this);
+        img = (ZoomImageView) findViewById(R.id.photo_look);
+        img_check = (ImageView) findViewById(R.id.img_check);
+        img_check.setOnClickListener(this);
+        Bitmap bm = BitmapFactory.decodeFile(picPath);
+        img.setImageBitmap(bm);
+
+        File file = new File(picPath);
+        if (file.exists()) {
+            //Bitmap bitmap = BitmapFactory.decodeFile(picPath);
+            Bitmap bitmap = getBitmap(picPath);
+            img.setImageBitmap(bitmap);
+        }
+
+        if (ischeck) {
+            img_check.setImageResource(R.mipmap.ic_checked);
+        } else {
+            img_check.setImageResource(R.mipmap.ic_unchecked);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.study_message_left_tv:
+            case R.id.study_message_back:
+                this.finish();
+                break;
+            case R.id.study_message_right_tv:
+                Intent intent = new Intent();
+                if (count > 9) {
+                    intent.putExtra("check", false);
+                } else {
+                    intent.putExtra("check", ischeck);
+                }
+                if (!sendpic) {
+                    intent.putExtra("count", count);
+                    setResult(RESULT_OK, intent);
+                } else {
+                    if (ischeck) {
+                        list.add(picPath);
+                    }
+                    sendImageMessage(list);
+                    setResult(1, intent);
+                }
+                this.finish();
+                break;
+            case R.id.img_check:
+                ischeck = !ischeck;
+                if (ischeck) {
+                    count++;
+                    if (count > 9) {
+                        Toast.makeText(mContext, "最多选择9个文件", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    img_check.setImageResource(R.mipmap.ic_checked);
+                    tv_right.setText("确定(" + count + ")");
+                } else {
+                    img_check.setImageResource(R.mipmap.ic_unchecked);
+                    count--;
+                    if (count > 0) {
+                        tv_right.setText("确定(" + count + ")");
+                    } else {
+                        tv_right.setText("确定");
+                    }
+                }
+                break;
+        }
+    }
+
+    private Bitmap getBitmap(String srcPath) {
+        BitmapFactory.Options newOpts = new BitmapFactory.Options();
+        newOpts.inJustDecodeBounds = true;//只读边,不读内容
+        Bitmap bitmap = BitmapFactory.decodeFile(srcPath, newOpts);
+
+        newOpts.inJustDecodeBounds = false;
+        int w = newOpts.outWidth;
+        int h = newOpts.outHeight;
+        float hh = 800f;//
+        float ww = 480f;//
+        int be = 1;
+        if (w > h && w > ww) {
+            be = (int) (newOpts.outWidth / ww);
+        } else if (w < h && h > hh) {
+            be = (int) (newOpts.outHeight / hh);
+        }
+        if (be <= 0)
+            be = 1;
+        newOpts.inSampleSize = be;//设置采样率
+
+        newOpts.inPreferredConfig = Bitmap.Config.ARGB_8888;//该模式是默认的,可不设
+        newOpts.inPurgeable = true;// 同时设置才会有效
+        newOpts.inInputShareable = true;//。当系统内存不够时候图片自动被回收
+
+        bitmap = BitmapFactory.decodeFile(srcPath, newOpts);
+//      return compressBmpFromBmp(bitmap);//原来的方法调用了这个方法企图进行二次压缩
+        //其实是无效的,大家尽管尝试
+        return bitmap;
+    }
+
+    //发送图片
+    private void sendImageMessage(List<Object> listSelectAll) {
+        for (int i = 0; i < listSelectAll.size(); i++) {
+            UserInfo userInfo = new UserInfo(sharedPreferences.getString(Constant.ID_USER, ""), sharedPreferences.getString(Constant.USER_NAME, ""), null);
+            final ImageMessage imageMessage = ImageMessage.obtain(Uri.parse("file://" + listSelectAll.get(i)), Uri.parse("file://" + listSelectAll.get(i)));
+
+            JSONObject json = new JSONObject();
+            try {
+                json.put("type", chatType);
+                json.put("fileid", "");
+                json.put("name", listSelectAll.get(i).toString());
+                long size = 0;
+                try {
+                    File file = new File(listSelectAll.get(i).toString());
+                    size = file.getTotalSpace();
+                } catch (Exception e) {
+
+                }
+                json.put("size", size);
+                json.put("CRC", "");
+                json.put("memo", "");
+                long t = System.currentTimeMillis() + i;
+                json.put("createTime", t);
+                json.put("chatType", chatType);
+                json.put("uri", imageMessage.getRemoteUri());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            final String messageBody = json.toString();
+            imageMessage.setUserInfo(userInfo);
+            imageMessage.setExtra(messageBody);
+            Conversation.ConversationType type = null;
+            if (chatType == 0) {
+                type = Conversation.ConversationType.PRIVATE;
+            } else if (chatType == 1 || chatType == 2) {
+                type = Conversation.ConversationType.GROUP;
+            }
+            RongIMClient.getInstance().sendImageMessage(type, targetId, imageMessage, null, null, new RongIMClient.SendImageMessageCallback() {
+                @Override
+                public void onAttached(Message message) {
+
+                }
+
+                @Override
+                public void onError(Message message, RongIMClient.ErrorCode errorCode) {
+                    Intent intent = new Intent();
+                    intent.setAction("message_copy");
+                    intent.putExtra("new_message", "message");
+                    Bundle bundle = new Bundle();
+                    message.setSentStatus(Message.SentStatus.FAILED);
+                    bundle.putParcelable("message", message);
+                    intent.putExtras(bundle);
+                    mContext.sendBroadcast(intent);
+                }
+
+                @Override
+                public void onSuccess(Message message) {
+                    Intent intent = new Intent();
+                    intent.setAction("message_copy");
+                    intent.putExtra("new_message", "message");
+                    Bundle bundle = new Bundle();
+                    if (!NetWorkUtils.isNetworkAvailable(mContext)) {
+                        message.setSentStatus(Message.SentStatus.FAILED);
+                    }
+                    bundle.putParcelable("message", message);
+                    intent.putExtras(bundle);
+                    mContext.sendBroadcast(intent);
+                }
+
+                @Override
+                public void onProgress(Message message, int i) {
+
+                }
+            });
+        }
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("OpenPhotoActivity");
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("OpenPhotoActivity");
+        MobclickAgent.onPause(this);
+    }
+}

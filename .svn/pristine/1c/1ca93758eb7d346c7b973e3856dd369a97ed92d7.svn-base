@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/message_time" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:paddingBottom="10dp"
+        android:paddingLeft="60dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp">
+
+        <net.iclassmate.bxyd.view.study.ShapeImageView
+            android:id="@+id/send_icon"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
+            android:layout_alignParentRight="true"
+            android:src="@mipmap/ic_liaotiantouxiang" />
+
+        <TextView
+            android:id="@+id/send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_toLeftOf="@+id/send_icon"
+            android:background="@drawable/img_send"
+            android:gravity="center|left"
+            android:maxWidth="240dp"
+            android:textColor="#202025"
+            android:textSize="14sp"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/img_send_tv_fail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dp"
+            android:layout_marginTop="12dp"
+            android:layout_toLeftOf="@id/send_message"
+            android:padding="5dp"
+            android:src="@drawable/img_send_message_fail"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:id="@+id/send_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:layout_marginRight="6dp"
+            android:layout_marginTop="6dp"
+            android:layout_toLeftOf="@+id/send_icon">
+
+            <ImageView
+                android:id="@+id/send_Imagemessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|right"
+                android:adjustViewBounds="true"
+                android:background="@mipmap/img_tupian_liaotianchuang"
+                android:maxHeight="100dp"
+                android:maxWidth="120dp"
+                android:paddingBottom="3dp"
+                android:paddingLeft="3dp"
+                android:paddingRight="8dp"
+                android:paddingTop="3dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/send_pro_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <ImageView
+            android:id="@+id/img_send_img_fail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dp"
+            android:layout_marginTop="12dp"
+            android:layout_toLeftOf="@id/send_frame"
+            android:padding="5dp"
+            android:src="@drawable/img_send_message_fail"
+            android:visibility="gone" />
+    </RelativeLayout>
+</LinearLayout>

@@ -1,0 +1,198 @@
+package net.iclassmate.xydspace.ui.activity;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+
+import com.baoyz.swipemenulistview.SwipeMenu;
+import com.baoyz.swipemenulistview.SwipeMenuCreator;
+import com.baoyz.swipemenulistview.SwipeMenuItem;
+import com.baoyz.swipemenulistview.SwipeMenuListView;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.adapter.AddFriendAdapter;
+import net.iclassmate.xydspace.utils.DataCallback;
+import net.iclassmate.xydspace.utils.HttpManager;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.TitleBar;
+
+import java.util.ArrayList;
+
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Message;
+
+/**
+ * 待办界面
+ */
+public class BacklogActivity extends FragmentActivity implements TitleBar.TitleOnClickListener, DataCallback {
+    private Context mContext;
+    private TitleBar titleBar;
+    private ArrayList<Message> lists;
+    private SwipeMenuListView mSwipeMenuListView;
+    private AddFriendAdapter addFriendAdapter;
+    private HttpManager httpManager;
+
+    private ImageView img;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_backlog);
+
+        mContext = this;
+        initView();
+        initData();
+        initLinstener();
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.backlog_title_bar);
+        titleBar.setTitle("待办");
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui, "消息");
+        httpManager = new HttpManager();
+        mSwipeMenuListView = (SwipeMenuListView) findViewById(R.id.add_contacts_listView);
+        initListView();
+        img = (ImageView) findViewById(R.id.img_anim);
+    }
+
+    private void initListView() {
+        // step 1. create a MenuCreator
+        SwipeMenuCreator creator = new SwipeMenuCreator() {
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "delete" item
+                SwipeMenuItem deleteItem = new SwipeMenuItem(
+                        mContext.getApplicationContext());
+                // set item background
+                deleteItem.setBackground(new ColorDrawable(Color.rgb(244, 53, 49)));
+                // set item width
+                deleteItem.setWidth(UIUtils.dip2px(73));
+                // set a icon
+                deleteItem.setIcon(R.mipmap.wenzi_shanchu);
+                // add to menu
+                menu.addMenuItem(deleteItem);
+            }
+        };
+        // set creator
+        mSwipeMenuListView.setMenuCreator(creator);
+        // step 2. listener menutime click event
+        mSwipeMenuListView
+                .setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+                    @Override
+                    public void onMenuItemClick(final int position, SwipeMenu menu, int index) {
+                        switch (index) {
+                            case 0:
+                                Message message = lists.get(position);
+                                RongIMClient.getInstance().removeConversation(message.getConversationType(), message.getTargetId(), new RongIMClient.ResultCallback<Boolean>() {
+                                    @Override
+                                    public void onSuccess(Boolean aBoolean) {
+                                        if (aBoolean) {
+                                            lists.remove(position);
+                                            addFriendAdapter.notifyDataSetChanged();
+                                        }
+                                        if (lists.size() == 0) {
+                                            img.setVisibility(View.VISIBLE);
+                                            img.setImageResource(R.mipmap.ic_no_result);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(RongIMClient.ErrorCode errorCode) {
+
+                                    }
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+        // listview item click event
+        mSwipeMenuListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+
+            }
+        });
+    }
+
+    private void initData() {
+        lists = (ArrayList<Message>) getIntent().getSerializableExtra("contactsNotifications");
+        //初始化或刷新适配器
+        initOrRefreshAdapter(lists);
+        if (lists.size() == 0) {
+            img.setVisibility(View.VISIBLE);
+            img.setImageResource(R.mipmap.ic_noresult_xiaoxi);
+        } else {
+            img.setVisibility(View.GONE);
+        }
+    }
+
+    private void initLinstener() {
+        titleBar.setTitleClickListener(this);
+    }
+
+    private void initOrRefreshAdapter(ArrayList<Message> lists) {
+        if (addFriendAdapter == null) {
+            Log.i("BacklogActivity-----", "-----------------" + lists.size());
+            addFriendAdapter = new AddFriendAdapter(lists, mContext, httpManager, BacklogActivity.this, this);
+            mSwipeMenuListView.setAdapter(addFriendAdapter);
+
+        } else {
+            Log.i("BacklogActivity", "-----------------" + lists.size());
+            addFriendAdapter.notifyDataSetChanged();
+        }
+    }
+
+
+    @Override
+    public void leftClick() {
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+    @Override
+    public void sendData(Object object) {
+        int position = (int) object;
+//        ContactsNotification info=lists.get(position);
+//        info.setType(2);
+//        lists.set(position,info);
+        Message message = lists.get(position);
+        message.setExtra("isAgreed");
+        lists.set(position, message);
+        sendMessage();
+        initOrRefreshAdapter(lists);
+    }
+
+    private void sendMessage() {
+
+    }
+}

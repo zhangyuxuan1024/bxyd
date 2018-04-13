@@ -1,0 +1,122 @@
+package net.iclassmate.bxyd.adapter;
+
+import android.content.Context;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.bxyd.R;
+import net.iclassmate.bxyd.constant.Constant;
+import net.iclassmate.bxyd.utils.ChatMessageUtil;
+import net.iclassmate.bxyd.utils.FileUtils;
+import net.iclassmate.bxyd.utils.UTCTime;
+import net.iclassmate.bxyd.view.study.ShapeImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+
+import io.rong.imlib.model.Message;
+import io.rong.message.ImageMessage;
+import io.rong.message.TextMessage;
+
+/**
+ * 聊天记录适配器
+ * Created by xyd on 2016/8/31.
+ */
+public class ChatRecordAdapter extends BaseAdapter{
+    private Context context;
+    private List<Message> list;
+
+    public ChatRecordAdapter(Context context, List<Message> list) {
+        this.context = context;
+        this.list = list;
+    }
+
+    @Override
+    public int getCount() {
+        return list.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder = null;
+        if(convertView == null){
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_chat_record, null);
+            holder = new ViewHolder();
+            holder.iv = (ShapeImageView) convertView.findViewById(R.id.item_record_iv);
+            holder.name = (TextView) convertView.findViewById(R.id.item_record_name);
+            holder.content = (TextView) convertView.findViewById(R.id.chat_record_content);
+            holder.time = (TextView) convertView.findViewById(R.id.chat_record_time);
+            convertView.setTag(holder);
+        } else{
+            holder = (ViewHolder) convertView.getTag();
+        }
+        Message message = list.get(position);
+
+        //头像
+        if (message.getSenderUserId() != null) {
+            String iconUrl = String.format(Constant.STUDY_GET_USER_PIC, message.getSenderUserId());
+            Picasso.with(context).load(iconUrl).resize((int) context.getResources().getDimension(R.dimen.view_43),
+                    (int) context.getResources().getDimension(R.dimen.view_43)).placeholder(R.mipmap.ic_liaotiantouxiang)
+                    .error(R.mipmap.ic_liaotiantouxiang).into(holder.iv);
+        }
+
+        //名字
+        holder.name.setText(message.getContent().getUserInfo().getName());
+
+        //内容
+        if(message.getContent() instanceof TextMessage){
+            TextMessage textMessage = (TextMessage) message.getContent();
+            String info = textMessage.getContent();
+            JSONObject json = null;
+            try {
+                json = new JSONObject(info);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String filename = json.optString("FileName");
+            int contentType = json.optInt("ContentType");
+            String fileId = json.optString("FileID");
+            String content = json.optString("Content");
+            long tim = message.getSentTime();
+            String s = UTCTime.formatDisplayTime(UTCTime.getTime(tim), "yyyy-MM-dd HH:mm:ss");
+            Log.i("TAG", "时间"+"/"+tim+"/"+"+时间："+UTCTime.getTime(tim)+"/"+"+时间："+s);
+            holder.time.setText(s);
+
+            if (filename != null && !filename.equals("")) {
+                contentType = FileUtils.getContentType(filename);
+            }
+            ChatMessageUtil chat = new ChatMessageUtil();
+            chat.setMessageView(contentType, holder.content, content, context);
+        } else if(message.getContent() instanceof ImageMessage){
+            holder.content.setText("[图片]");
+            long tim = message.getSentTime();
+            String s = UTCTime.formatDisplayTime(UTCTime.getTime(tim), "yyyy-MM-dd HH:mm:ss");
+            Log.i("TAG", "时间"+"/"+tim+"/"+"+时间："+UTCTime.getTime(tim)+"/"+"+时间："+s);
+            holder.time.setText(s);
+        }
+        return convertView;
+    }
+
+    class ViewHolder{
+        ShapeImageView iv;
+        TextView name, content, time;
+    }
+}

@@ -1,0 +1,613 @@
+package net.iclassmate.bxyd.ui.activitys;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
+
+import net.iclassmate.bxyd.R;
+import net.iclassmate.bxyd.bean.User;
+import net.iclassmate.bxyd.constant.Constant;
+import net.iclassmate.bxyd.ui.activitys.owner.ServiceAgreementActivity;
+import net.iclassmate.bxyd.utils.DataCallback;
+import net.iclassmate.bxyd.utils.HttpManager;
+import net.iclassmate.bxyd.utils.NetWorkUtils;
+import net.iclassmate.bxyd.utils.TimeUtils;
+import net.iclassmate.bxyd.utils.UIUtils;
+import net.iclassmate.bxyd.view.TitleBar;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class RegisterActivity extends Activity implements TitleBar.TitleOnClickListener, View.OnClickListener, View.OnTouchListener, DataCallback {
+    private String TAG = "RegisterActivity";
+    private TitleBar titleBar;
+    private Context mContext;
+    private Handler handler;
+    private String registerUrl;
+    private HttpManager httpManager;
+    private boolean isCheck, isTimeRun;
+    private ImageView check;
+    private Button btn_register_code;
+    private TextView tv_phone, tv_name, code_success, tv_user_info, tv_register_service;
+    private boolean isRegisterSucceed = false;
+    private LinearLayout layout_register, layout_succeed;
+    private EditText et_name, et_phone, et_code, et_pwd, et_affrim;
+    private Button btn_register, btn_registerSucceed;
+    private Button name_delete, phone_delete, code_delete, pwd_delete, affrim_delete;
+    private String name, phone, code, pwd, affrim, register_phone, register_name;
+    User user = null;
+    private long last_click_time;
+    private boolean isclickregist;
+
+    //用户名和密码
+    private String uname, upass;
+    private int t;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_register);
+        mContext = this;
+        initView();
+
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case 200:
+                        isTimeRun = true;
+                        btn_register_code.setBackgroundResource(R.mipmap.ic_chongshi);
+                        TimeUtils time = new TimeUtils(btn_register_code);
+                        time.RunTimer();
+                        code_success.setVisibility(View.VISIBLE);
+                        break;
+                    case 401:
+                    case 403:
+                        Toast.makeText(UIUtils.getContext(), "获取验证码失败，请稍候再试", Toast.LENGTH_SHORT).show();
+                    case 404:
+                        Toast.makeText(UIUtils.getContext(), "获取验证码失败，请稍候再试", Toast.LENGTH_SHORT).show();
+                    case 405:
+                        Toast.makeText(UIUtils.getContext(), "获取验证码失败，请稍候再试", Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        String result = (String) msg.obj;
+                        if (result.contains(",")) {
+                            String[] data = result.split(",");
+                            int code = Integer.parseInt(data[0]);
+                            result = data[1];
+                            try {
+                                JSONObject object = new JSONObject(result);
+                                boolean exist = object.getBoolean("exist");
+                                if (exist) {
+                                    Toast.makeText(UIUtils.getContext(), "手机号已经被使用", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            httpManager.httpUrlConnectionPut(Constant.VERIFICATION_URL + "/" + phone, phone);
+                                            handler.sendEmptyMessage(200);
+                                        }
+                                    }).start();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        break;
+                }
+            }
+        };
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.register_title_bar);
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui);
+        titleBar.setTitleClickListener(this);
+        httpManager = new HttpManager(this);
+        layout_register = (LinearLayout) findViewById(R.id.register_layout);
+        layout_succeed = (LinearLayout) findViewById(R.id.register_succeed_layout);
+        isCheck = true;
+
+        if (isRegisterSucceed) {
+            titleBar.setTitle(getResources().getString(R.string.register_succeed_title));
+            tv_name = (TextView) findViewById(R.id.register_succeed_name);
+            tv_phone = (TextView) findViewById(R.id.register_succeed_phone);
+            tv_user_info = (TextView) findViewById(R.id.register_succeed_userinfo);
+            btn_registerSucceed = (Button) findViewById(R.id.register_succeed_btn);
+            btn_registerSucceed.setOnClickListener(this);
+        } else {
+            titleBar.setTitle(getResources().getString(R.string.register_title));
+            code_success = (TextView) findViewById(R.id.register_code_success);
+            check = (ImageView) findViewById(R.id.register_check);
+            et_name = (EditText) findViewById(R.id.register_name);
+            et_affrim = (EditText) findViewById(R.id.register_affrim);
+            et_code = (EditText) findViewById(R.id.register_code);
+            et_phone = (EditText) findViewById(R.id.register_phoneNumber);
+            et_pwd = (EditText) findViewById(R.id.register_password);
+            btn_register = (Button) findViewById(R.id.register_btn);
+            btn_register_code = (Button) findViewById(R.id.register_code_btn);
+
+            name_delete = (Button) findViewById(R.id.register_name_delete);
+            phone_delete = (Button) findViewById(R.id.register_phone_delete);
+            code_delete = (Button) findViewById(R.id.register_code_delete);
+            pwd_delete = (Button) findViewById(R.id.register_password_delete);
+            affrim_delete = (Button) findViewById(R.id.register_affrim_delete);
+
+            tv_register_service = (TextView) findViewById(R.id.register_service);
+            tv_register_service.setOnClickListener(this);
+            t = 60;
+            //出现EditText删除按钮
+
+            initDeleteIcon();
+
+            check.setOnClickListener(this);
+            et_name.setOnTouchListener(this);
+            et_phone.setOnTouchListener(this);
+            et_code.setOnTouchListener(this);
+            et_pwd.setOnTouchListener(this);
+            et_affrim.setOnTouchListener(this);
+
+            btn_register_code.setOnClickListener(this);
+            btn_register.setOnClickListener(this);
+            name_delete.setOnClickListener(this);
+            phone_delete.setOnClickListener(this);
+            code_delete.setOnClickListener(this);
+            pwd_delete.setOnClickListener(this);
+            affrim_delete.setOnClickListener(this);
+        }
+        isclickregist = true;
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.register_check:
+                if (isCheck) {
+                    isCheck = false;
+                    check.setBackgroundResource(R.mipmap.ic_circle);
+                } else {
+                    isCheck = true;
+                    check.setBackgroundResource(R.mipmap.ic_checked);
+                }
+                break;
+            case R.id.register_btn:
+                uname = et_phone.getText().toString();
+                upass = et_pwd.getText().toString();
+                if (System.currentTimeMillis() - last_click_time < 1500) {
+                    return;
+                }
+                last_click_time = System.currentTimeMillis();
+
+                registerUrl = Constant.REGISTER_URL;
+                register_name = et_name.getText().toString().trim();
+                register_phone = et_phone.getText().toString().trim();
+                code = et_code.getText().toString().trim();
+                pwd = et_pwd.getText().toString().trim();
+                affrim = et_affrim.getText().toString().trim();
+                checkRegister(register_name, register_phone, code, pwd, affrim, isCheck);
+                break;
+            case R.id.register_succeed_btn:
+                if (System.currentTimeMillis() - last_click_time < 3000) {
+                    return;
+                }
+                last_click_time = System.currentTimeMillis();
+                Intent intent = new Intent();
+                intent.putExtra("uname", uname);
+                intent.putExtra("upass", upass);
+                setResult(RESULT_OK, intent);
+                this.finish();
+                break;
+
+            case R.id.register_code_btn:
+                name = et_name.getText().toString().trim();
+                phone = et_phone.getText().toString().trim();
+                if (!NetWorkUtils.isNetworkAvailable(UIUtils.getContext())) {
+                    Toast.makeText(UIUtils.getContext(), "请检查您的网络链接！", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (name.equals("")) {
+                        Toast.makeText(UIUtils.getContext(), "姓名不能为空", Toast.LENGTH_SHORT).show();
+                    } else if (name.length() > 20) {
+                        Toast.makeText(UIUtils.getContext(), "姓名不能多于20个字", Toast.LENGTH_SHORT).show();
+                    } else {
+                        final String value = phone;
+                        Pattern p = Pattern.compile("^((13[0-9])|(14[0-9])|(15[^4,\\D])|(18[0-9])|(17[0-9]))\\d{8}$");
+                        final Matcher m = p.matcher(value);
+                        if (!m.matches()) {
+                            Toast.makeText(UIUtils.getContext(), "输入手机号不正确", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String result = httpManager.isRegister(value);
+                                Message msg = new Message();
+                                msg.obj = result;
+                                msg.what = 1;
+                                handler.sendMessage(msg);
+                            }
+                        }).start();
+                    }
+                }
+
+                break;
+            case R.id.register_name_delete:
+                et_name.setText("");
+                break;
+            case R.id.register_phone_delete:
+                et_phone.setText("");
+                break;
+            case R.id.register_affrim_delete:
+                et_affrim.setText("");
+                break;
+            case R.id.register_code_delete:
+                et_code.setText("");
+                break;
+            case R.id.register_password_delete:
+                et_pwd.setText("");
+                break;
+            case R.id.register_service:
+                intent = new Intent(mContext, ServiceAgreementActivity.class);
+                startActivity(intent);
+                break;
+        }
+    }
+
+    //注册审核
+    private boolean checkRegister(final String name, final String phone, final String code, final String pass, String pass2, boolean ischeck) {
+        boolean check = true;
+        if (!NetWorkUtils.isNetworkAvailable(UIUtils.getContext())) {
+            Toast.makeText(UIUtils.getContext(), "请检查您的网络链接！", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (name.equals("")) {
+            Toast.makeText(mContext, "姓名不能为空", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (name.length() > 20) {
+            Toast.makeText(mContext, "姓名不能多于20个字", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (phone.equals("")) {
+            Toast.makeText(mContext, "手机号不能为空", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (phone.length() != 11) {
+            Toast.makeText(UIUtils.getContext(), "输入手机号不正确", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (phone.length() == 11) {
+            Pattern p = Pattern.compile("^((13[0-9])|(14[0-9])|(15[^4,\\D])|(18[0-9])|(17[0-9]))\\d{8}$");
+            final Matcher m = p.matcher(phone);
+            if (!m.matches()) {
+                Toast.makeText(UIUtils.getContext(), "输入手机号不正确", Toast.LENGTH_SHORT).show();
+                check = false;
+                return check;
+            }
+        }
+
+        if (code.equals("")) {
+            Toast.makeText(UIUtils.getContext(), "验证码不能为空", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (code.length() != 6) {
+            Toast.makeText(UIUtils.getContext(), "验证码不正确", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+
+        if (pass.equals("")) {
+            Toast.makeText(UIUtils.getContext(), "密码不能为空", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (pass.length() < 6 || pass.length() > 12) {
+            Toast.makeText(UIUtils.getContext(), "请输入6-12位字母、数字或常用符号组合作为密码", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (!pass.equals(pass2)) {
+            Toast.makeText(UIUtils.getContext(), "密码前后不一致", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (!ischeck) {
+            Toast.makeText(UIUtils.getContext(), "尚未阅读服务协议", Toast.LENGTH_SHORT).show();
+            check = false;
+            return check;
+        }
+        if (check) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    //用户注册
+                    httpManager.getRegisterData(Constant.REGISTER_URL, name, phone, pass, code);
+                }
+            }).start();
+        }
+        return check;
+    }
+
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        switch (v.getId()) {
+            case R.id.register_name:
+                if (et_name.getText().length() != 0) {
+                    name_delete.setVisibility(View.VISIBLE);
+                }
+                phone_delete.setVisibility(View.INVISIBLE);
+                pwd_delete.setVisibility(View.INVISIBLE);
+                code_delete.setVisibility(View.INVISIBLE);
+                affrim_delete.setVisibility(View.INVISIBLE);
+                code_success.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.register_phoneNumber:
+                if (et_phone.getText().length() != 0) {
+                    phone_delete.setVisibility(View.VISIBLE);
+                }
+                name_delete.setVisibility(View.INVISIBLE);
+                pwd_delete.setVisibility(View.INVISIBLE);
+                code_delete.setVisibility(View.INVISIBLE);
+                affrim_delete.setVisibility(View.INVISIBLE);
+                code_success.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.register_code:
+                if (et_code.getText().length() != 0) {
+                    code_delete.setVisibility(View.VISIBLE);
+                }
+                name_delete.setVisibility(View.INVISIBLE);
+                phone_delete.setVisibility(View.INVISIBLE);
+                pwd_delete.setVisibility(View.INVISIBLE);
+                affrim_delete.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.register_password:
+                if (et_pwd.getText().length() != 0) {
+                    pwd_delete.setVisibility(View.VISIBLE);
+                }
+                name_delete.setVisibility(View.INVISIBLE);
+                phone_delete.setVisibility(View.INVISIBLE);
+                code_delete.setVisibility(View.INVISIBLE);
+                affrim_delete.setVisibility(View.INVISIBLE);
+                code_success.setVisibility(View.INVISIBLE);
+                break;
+            case R.id.register_affrim:
+                if (et_affrim.getText().length() != 0) {
+                    affrim_delete.setVisibility(View.VISIBLE);
+                }
+                name_delete.setVisibility(View.INVISIBLE);
+                phone_delete.setVisibility(View.INVISIBLE);
+                pwd_delete.setVisibility(View.INVISIBLE);
+                code_delete.setVisibility(View.INVISIBLE);
+                code_success.setVisibility(View.INVISIBLE);
+                break;
+        }
+        return false;
+    }
+
+
+    /**
+     * 显示edittext的删除按钮
+     */
+    private void initDeleteIcon() {
+        et_name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() != 0) {
+                    name_delete.setVisibility(View.VISIBLE);
+                } else {
+                    name_delete.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        et_phone.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() != 0) {
+                    phone_delete.setVisibility(View.VISIBLE);
+                    if (!isTimeRun) {
+                        if (s.length() == 11) {
+                            btn_register_code.setBackgroundResource(R.drawable.huoqu_selector);
+                        } else {
+                            btn_register_code.setBackgroundResource(R.mipmap.bt_huoqu_moren);
+                        }
+                    }
+                } else {
+                    phone_delete.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        et_code.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() != 0) {
+                    code_delete.setVisibility(View.VISIBLE);
+                } else {
+                    code_delete.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        et_pwd.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() != 0) {
+                    pwd_delete.setVisibility(View.VISIBLE);
+                } else {
+                    pwd_delete.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        et_affrim.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() != 0) {
+                    affrim_delete.setVisibility(View.VISIBLE);
+                } else {
+                    affrim_delete.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+    }
+
+    @Override
+    public void leftClick() {
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+    @Override
+    public void sendData(Object object) {
+        String result = object.toString();
+        if (result.equals("404")) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(UIUtils.getContext(), "服务器繁忙，请稍候再试", Toast.LENGTH_SHORT).show();
+                    isclickregist = true;
+                }
+            });
+        } else if (result.equals("400")) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(UIUtils.getContext(), "手机验证码错误", Toast.LENGTH_SHORT).show();
+                    isclickregist = true;
+                }
+            });
+        } else {
+            JSONObject json = null;
+            try {
+                json = new JSONObject(result);
+                String name = json.getString("name");
+                String phone = json.getString("phone");
+                String userCode = json.getString("userCode");
+                user = new User(name, phone, userCode);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    layout_register.setVisibility(View.GONE);
+                    isRegisterSucceed = true;
+                    initView();
+                    layout_succeed.setVisibility(View.VISIBLE);
+                    tv_user_info.setText("欢迎您，" + user.getName());
+                    tv_phone.setText(user.getPhone());
+                    tv_name.setText(user.getUserCode());
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("RegisterActivity");
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("RegisterActivity");
+        MobclickAgent.onPause(this);
+    }
+}

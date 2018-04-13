@@ -1,0 +1,247 @@
+package net.iclassmate.xydspace.ui.activity.study.openfile;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.umeng.analytics.MobclickAgent;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.ui.activity.study.StudyWindowActivity;
+import net.iclassmate.xydspace.utils.FileUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class OpenTextFileActivity extends FragmentActivity implements View.OnClickListener {
+    private TextView tv_back;
+    private ImageView img_back, img_right, img_anim;
+    private TextView tv_title;
+    private AnimationDrawable anim;
+
+    private TextView tv_content;
+    private OkHttpClient client;
+    private Context mContext;
+    private String filename;
+    private static final int RET_DEL = 1;
+    private String id;
+    private String name;
+    private int type;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            anim.stop();
+            img_anim.setVisibility(View.GONE);
+            switch (msg.what) {
+                case 404:
+                    img_anim.setBackgroundColor(Color.WHITE);
+                    img_anim.setVisibility(View.VISIBLE);
+                    img_anim.setImageResource(R.mipmap.img_jiazaishibai);
+                    tv_content.setVisibility(View.INVISIBLE);
+                    break;
+                case 1:
+                    String ret = (String) msg.obj;
+                    if (name.contains("txt")) {
+                        ret = FileUtils.readStr2Sd(ret, "gb2312");
+                    } else if (name.contains("docx")) {
+                        ret = FileUtils.readDOCX(ret);
+                    } else if (name.contains("doc")) {
+                        ret = FileUtils.readDOC(ret);
+                    } else if (name.contains("xlsx")) {
+                        ret = FileUtils.readXLSX(ret);
+                    } else if (name.contains("xls")) {
+                        ret = FileUtils.readXLS(ret);
+                    } else if (name.contains("pptx")) {
+                        ret = FileUtils.readPPTX(ret);
+                    } else if (name.contains("pdf")) {
+                        ret = FileUtils.readPDF(ret);
+                    } else {
+                        ret = "文件解析异常";
+                    }
+                    if (ret.equals("文件解析异常") || ret.equals("")) {
+                        anim.stop();
+                        img_anim.setVisibility(View.VISIBLE);
+                        img_anim.setBackgroundColor(Color.WHITE);
+                        img_anim.setImageResource(R.mipmap.img_jiazaishibai);
+                        tv_content.setVisibility(View.INVISIBLE);
+                        Toast.makeText(OpenTextFileActivity.this, "请下载后打开", Toast.LENGTH_SHORT).show();
+                    }
+                    tv_content.setText(ret);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_open_text_file);
+
+        Intent intent = getIntent();
+        id = intent.getStringExtra("id");
+        name = intent.getStringExtra("name");
+        type = intent.getIntExtra("type", 0);
+
+//        Log.i("info", "文件名=" + name);
+        init();
+        loadData(id);
+    }
+
+    private void init() {
+        tv_back = (TextView) findViewById(R.id.study_message_left_tv);
+        tv_back.setOnClickListener(this);
+        img_back = (ImageView) findViewById(R.id.study_message_back);
+        img_back.setOnClickListener(this);
+        tv_title = (TextView) findViewById(R.id.study_message_title_tv);
+        tv_title.setVisibility(View.INVISIBLE);
+        tv_back.setText("返回");
+
+        tv_content = (TextView) findViewById(R.id.tv_open_file_content);
+        img_right = (ImageView) findViewById(R.id.study_message_right_icon);
+        img_right.setVisibility(View.VISIBLE);
+        img_right.setOnClickListener(this);
+        img_anim = (ImageView) findViewById(R.id.img_anim);
+        anim = (AnimationDrawable) img_anim.getBackground();
+        anim.start();
+
+        mContext = this;
+
+        filename = "xydspace.txt";
+
+        if (type == 1) {
+            img_right.setImageResource(R.mipmap.ic_xiaobaidian);
+        } else if (type == 2) {
+            img_right.setImageResource(R.drawable.img_study_del);
+        } else if (type == 3) {
+            img_right.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void loadData(final String id) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    execute(id);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void execute(String id) {
+        String url = String.format(Constant.STUDY_OPEN_FILE, id);
+//        Log.i("info", "打开文件请求路径=" + url);
+        final Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        int cacheSize = 10 * 1024 * 1024;
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS);
+        client = builder.build();
+        client.newCall(request).enqueue(new Callback() {
+                                            @Override
+                                            public void onFailure(Call call, IOException e) {
+                                                Log.i("info", "请求数据失败" + e.getMessage());
+                                                Message message = new Message();
+                                                message.what = 404;
+                                                mHandler.sendMessage(message);
+                                            }
+
+                                            @Override
+                                            public void onResponse(Call call, final Response response) throws IOException {
+                                                Log.i("info", "请求文本数据,返回成功！");
+                                                if (response.isSuccessful()) {
+                                                    Log.i("info", "返回码=" + response.code());
+                                                    InputStream in = response.body().byteStream();
+                                                    FileUtils.write2Sd(in, filename);
+                                                    Message message = new Message();
+                                                    message.what = 1;
+                                                    message.obj = filename;
+                                                    mHandler.sendMessage(message);
+                                                }
+                                            }
+                                        }
+
+        );
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.study_message_left_tv:
+            case R.id.study_message_back:
+                this.finish();
+                break;
+            case R.id.study_message_right_icon:
+                if (type == 1) {
+                    Intent intent = new Intent(mContext, StudyWindowActivity.class);
+                    List<String> list = new ArrayList<String>();
+                    list.add("保存到网盘");
+                    intent.putStringArrayListExtra("list", (ArrayList<String>) list);
+                    intent.putExtra("saveid", id);
+                    startActivity(intent);
+                } else if (type == 2) {
+                    Intent intent = new Intent(mContext, StudyWindowActivity.class);
+                    List<String> list = new ArrayList<String>();
+                    list.add("是否确认删除文件删除");
+                    intent.putStringArrayListExtra("list", (ArrayList<String>) list);
+                    startActivityForResult(intent, RET_DEL);
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == RET_DEL) {
+                Intent intent = new Intent();
+                intent.putExtra("id", id);
+                setResult(RESULT_OK, intent);
+                this.finish();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("OpenTextFileActivity");
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("OpenTextFileActivity");
+        MobclickAgent.onPause(this);
+    }
+}

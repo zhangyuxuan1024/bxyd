@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/include_emotion_view"
+        layout="@layout/include_emotion_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/ll_more_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#f8f8f8"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/chat_pic"
+                android:layout_width="54dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:background="@drawable/chat_album_selector" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/chat_camera"
+                android:layout_width="54dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:background="@drawable/chat_photo_selector" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/chat_file"
+                android:layout_width="54dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:background="@drawable/chat_file_selector" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:clickable="false"
+            android:orientation="vertical"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/chat_collect"
+                android:layout_width="54dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:background="@drawable/chat_collect_selector"
+                android:clickable="false" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_emotion_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#f8f8f8"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <net.iclassmate.xydspace.view.emotion.NoHorizontalScrollerViewPager
+            android:id="@+id/vp_emotionview_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="#ebebeb" />
+    </LinearLayout>
+</LinearLayout>

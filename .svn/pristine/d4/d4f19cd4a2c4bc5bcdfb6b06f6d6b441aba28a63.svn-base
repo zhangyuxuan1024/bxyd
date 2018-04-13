@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+        <net.iclassmate.xydspace.view.study.ShapeImageView
+            android:id="@+id/group_information_icon_siv"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_centerHorizontal="true"
+            android:background="@mipmap/ic_gerenliaotianxiangqing"/>
+
+
+        <TextView
+            android:id="@+id/group_information_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="小刚啊打发手动阀手动阀"
+            android:textColor="#8c8c98"
+            android:textSize="13sp"
+            android:maxEms="4"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_below="@+id/group_information_icon_siv"
+            android:layout_centerHorizontal="true" />
+</RelativeLayout>

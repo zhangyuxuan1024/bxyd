@@ -1,0 +1,313 @@
+package net.iclassmate.xydspace.ui.activity.chat;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.adapter.GroupMemberAdapter;
+import net.iclassmate.xydspace.bean.contacts.GroupMember;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.ui.activity.constacts.SelectSortActivity;
+import net.iclassmate.xydspace.ui.activity.study.ReportActivity;
+import net.iclassmate.xydspace.utils.HttpManager;
+import net.iclassmate.xydspace.utils.NetWorkUtils;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.FullGridView;
+import net.iclassmate.xydspace.view.TitleBar;
+import net.iclassmate.xydspace.view.study.ShapeImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ChatInformationActivity extends Activity implements TitleBar.TitleOnClickListener,View.OnClickListener{
+
+    private Context mContext;
+    private TitleBar titleBar;
+
+    private RelativeLayout chatFile,chatRecord,chatClear,report,rl_chat_information,rl_group_information;
+    private ShapeImageView chat_icon;
+    private TextView chat_name;
+    private FullGridView gv;
+    private ImageView chat_information_xiangqing;
+
+    private String from, friendId, name, iconUrl;
+    private String author, targetId, result;
+    private Boolean isInternet = false;   // 是否后网络
+    private SharedPreferences sp;
+
+    private HttpManager httpManager;
+    private static final int No_INTERNET = 0;    //没网络
+    private static final int FIND_FRIENDINFO_SUCCEED = 1;  //通过好友ID获取备注名和用户号成功
+    private static final int FIND_FRIENDINFO_FAIL = 2;     //通过好友ID获取备注名和用户号失败
+
+    private List<GroupMember> list;
+    private GroupMemberAdapter adapter;
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+
+                case No_INTERNET:
+                    Toast.makeText(UIUtils.getContext(),"您没有连接网络，请连接后重试！",Toast.LENGTH_SHORT).show();
+                    break;
+
+                case FIND_FRIENDINFO_SUCCEED:
+                    try {
+                        JSONObject jsonObject = new JSONObject(result);
+                        chat_name.setText(jsonObject.getString("remark"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+//                case FIND_GROUP_MEMBER_SUCCEED:
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        GroupMember groupMember = null;
+//                        List<String> listId = new ArrayList<String>();
+//                        for(int i = 0; i < list.size(); i++)
+//                        {
+//                            groupMember = list.get(i);
+//                            listId.add(groupMember.getUserId());
+//                        }
+//                    }
+//                }).start();
+//                    if(isMaster)
+//                    {
+//                        GroupMember groupMember = new GroupMember("add","");
+//                        GroupMember groupMember2 = new GroupMember("exit","");
+//                        list.add(groupMember);
+//                        list.add(groupMember2);
+//                    }else
+//                    {
+//                        GroupMember groupMember = new GroupMember("加人","");
+//                        list.add(groupMember);
+//                    }
+//
+//                    adapter.notifyDataSetChanged();
+//                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_chat_information);
+        mContext=this;
+        sp = this.getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        httpManager = new HttpManager();
+        initView();
+    }
+
+    private void initView() {
+
+        titleBar= (TitleBar) findViewById(R.id.chat_information_title_bar);
+        titleBar.setLeftIcon("取消");
+        titleBar.setTitle("聊天信息");
+
+        chatFile= (RelativeLayout) findViewById(R.id.chat_file);
+        chatClear= (RelativeLayout) findViewById(R.id.clear_chat_record);
+        chatRecord= (RelativeLayout) findViewById(R.id.chat_record);
+        report= (RelativeLayout) findViewById(R.id.report);
+        rl_chat_information = (RelativeLayout) findViewById(R.id.rl_chat_information);
+        rl_group_information = (RelativeLayout) findViewById(R.id.rl_group_information);
+        chat_icon = (ShapeImageView) findViewById(R.id.chat_information_icon);
+        chat_name = (TextView) findViewById(R.id.chat_information_name);
+        gv = (FullGridView) findViewById(R.id.group_information_gv);
+        chat_information_xiangqing = (ImageView) findViewById(R.id.chat_information_xiangqing);
+
+        initDatas();
+
+        titleBar.setTitleClickListener(this);
+        chatFile.setOnClickListener(this);
+        chatRecord.setOnClickListener(this);
+        chatClear.setOnClickListener(this);
+        report.setOnClickListener(this);
+        chat_information_xiangqing.setOnClickListener(this);
+
+        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(list.get(position).getUserId().equals("add"))
+                {
+                    Intent startSelect = new Intent(UIUtils.getContext(), SelectContactsActivity.class);
+                    startSelect.putExtra("from", from);
+                    startSelect.putExtra("sessionName", name);
+                    startSelect.putExtra("targetId", targetId);
+                    startActivityForResult(startSelect, 13);
+                } else if (list.get(position).getUserId().equals("exit"))
+                {
+                    Intent startSelect = new Intent(UIUtils.getContext(), SelectSortActivity.class);
+                    startSelect.putExtra("from", from);
+                    startSelect.putExtra("sessionName", name);
+                    startSelect.putExtra("targetId", targetId);
+                    startSelect.putExtra("author", author);
+                    startSelect.putExtra("groupList", (Serializable) list);
+                    startActivityForResult(startSelect, 14);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode == 13)
+        {
+            ChatInformationActivity.this.finish();
+        }else if(resultCode == 14)
+        {
+            if(data.getStringExtra("ExitGroup").equals("ExitSucceed")){
+                ChatInformationActivity.this.finish();
+            }
+        }
+    }
+
+    private void initDatas()
+    {
+        from = getIntent().getStringExtra("from");
+        if(from.equals("person"))
+        {
+            name = getIntent().getStringExtra("name");
+            iconUrl = getIntent().getStringExtra("iconUrl");
+            friendId = getIntent().getStringExtra("targetId");
+            rl_chat_information.setVisibility(View.VISIBLE);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if(NetWorkUtils.isNetworkAvailable(UIUtils.getContext())) {
+                        result = httpManager.getUserRemarkName(sp.getString(Constant.ID_USER,""), friendId);
+                        if (result.equals("404")) {
+                            handler.sendEmptyMessage(FIND_FRIENDINFO_FAIL);
+                        } else {
+                            handler.sendEmptyMessage(FIND_FRIENDINFO_SUCCEED);
+                        }
+                    }else{
+                        handler.sendEmptyMessage(No_INTERNET);
+                    }
+                }
+            }).start();
+
+            if(!TextUtils.isEmpty(iconUrl))
+            {
+                Picasso.with(mContext).load(iconUrl).resize(106, 106).into(chat_icon);
+            }
+        }else if(from.equals("group"))
+        {
+            rl_chat_information.setVisibility(View.GONE);
+            rl_group_information.setVisibility(View.VISIBLE);
+            targetId = getIntent().getStringExtra("targetId");
+            name = getIntent().getStringExtra("sessionName");
+            author = getIntent().getStringExtra("author");
+            isInternet = getIntent().getBooleanExtra("isInternet",false);
+            list = new ArrayList<GroupMember>();
+            Bundle b=getIntent().getBundleExtra("bundle");
+            list = (ArrayList<GroupMember>) b.getSerializable("list");
+            Log.i("TAG","list:"+list.size()+"个");
+            adapter = new GroupMemberAdapter(list,ChatInformationActivity.this);
+            gv.setAdapter(adapter);
+
+
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    if(NetWorkUtils.isNetworkAvailable(UIUtils.getContext()))
+//                    {
+//                        httpManager = new HttpManager();
+//                        list = httpManager.findGroupMember(targetId);
+//                        String userId = sp.getString(Constant.ID_USER, "");
+//                        if(userId.equals(author))
+//                        {
+//                            isMaster = true;
+//                        }
+//                        if(null != list || list.size() !=0)
+//                        {
+//                            handler.sendEmptyMessage(FIND_GROUP_MEMBER_SUCCEED);
+//                        }
+//                    }else
+//                    {
+//                        handler.sendEmptyMessage(No_INTERNET);
+//                    }
+//                }
+//            }).start();
+        }
+    }
+
+    @Override
+    public void leftClick() {
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.chat_file:
+                Intent startFile=new Intent(UIUtils.getContext(),ChatFileActivity.class);
+                startActivity(startFile);
+                break;
+            case R.id.clear_chat_record:
+                Intent clearRecord=new Intent(UIUtils.getContext(),ClearRecordActivity.class);
+                startActivity(clearRecord);
+                break;
+            case R.id.chat_record:
+                Intent startRecord=new Intent(UIUtils.getContext(),ChatRecordActivity.class);
+                startActivity(startRecord);
+                break;
+            case R.id.report:
+                Intent intent = new Intent(ChatInformationActivity.this, ReportActivity.class);
+                startActivity(intent);
+//                Toast.makeText(UIUtils.getContext(),"点击举报",Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.chat_information_xiangqing:   //创建群聊
+                Intent startSelect = new Intent(UIUtils.getContext(), SelectContactsActivity.class);
+                startSelect.putExtra("from", from);
+                startSelect.putExtra("friendName", name);
+                startSelect.putExtra("friendId", friendId);
+                startActivity(startSelect);
+                break;
+        }
+    }
+}

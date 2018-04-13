@@ -1,0 +1,116 @@
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_function_srl"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f9"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.xydspace.ui.fragment.FunctionFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/fragment_function_linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:descendantFocusability="blocksDescendants"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp" />
+
+            <RelativeLayout
+                android:id="@+id/fragment_function_rl_mynetdisk"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@color/white">
+
+                <ImageView
+                    android:id="@+id/item_mynetdisk_iv"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="15dp"
+                    android:src="@mipmap/ic_wodewangpan" />
+
+                <TextView
+                    android:id="@+id/item_mynetdisk_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12.5dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_toRightOf="@+id/item_mynetdisk_iv"
+                    android:text="我的网盘"
+                    android:textColor="#202025"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/fragment_function_usedSpace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/item_mynetdisk_tv"
+                    android:layout_marginLeft="12.5dp"
+                    android:layout_marginTop="4.5dp"
+                    android:layout_toRightOf="@+id/item_mynetdisk_iv"
+                    android:text="已使用1002MB\t共100GB容量"
+                    android:textSize="11sp"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/fragment_function_jg"
+                android:layout_width="match_parent"
+                android:layout_height="26dp"
+                android:background="#f5f5f9">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="15dp"
+                    android:text="机构网盘"
+                    android:textColor="#8c8c98"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <net.iclassmate.xydspace.view.FullListView
+                android:id="@+id/fragment_function_jg_flv"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:divider="#efefef">
+
+            </net.iclassmate.xydspace.view.FullListView>
+
+            <RelativeLayout
+                android:id="@+id/fragment_function_qz"
+                android:layout_width="match_parent"
+                android:layout_height="26dp"
+                android:background="#f5f5f9">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="15dp"
+                    android:text="群组网盘"
+                    android:textColor="#8c8c98"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <net.iclassmate.xydspace.view.FullListView
+                android:id="@+id/fragment_function_qz_flv"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:divider="#efefef">
+
+            </net.iclassmate.xydspace.view.FullListView>
+
+        </LinearLayout>
+    </ScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

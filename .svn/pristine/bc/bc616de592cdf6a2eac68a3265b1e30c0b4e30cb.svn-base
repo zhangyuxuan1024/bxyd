@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.iclassmate.xydspace.view.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_scrollview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    tools:context=".ui.activitys.LoginActivity">
+
+    <LinearLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:id="@+id/root_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/login_bg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/app_name"
+                android:scaleType="fitXY"
+                android:src="@mipmap/img_bg_snowlogin" />
+
+
+            <ImageView
+                android:id="@+id/login_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="140dp"
+                android:src="@mipmap/img_logo_snow" />
+        </FrameLayout>
+
+
+        <!--账号 密码 登陆 注册 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/login_userCode_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_gravity="center_vertical"
+                            android:contentDescription="@string/app_name"
+                            android:src="@mipmap/ic_zhanghao_snow" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="11dp"
+                            android:layout_marginRight="13dp"
+                            android:text="@string/login_userCode"
+                            android:textColor="#ccccd2"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="6dp"
+                            android:layout_marginRight="6dp"
+                            android:text="@string/login_blank"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+
+                        <EditText
+                            android:id="@+id/login_userCode"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:hint="@string/login_userCode_hint"
+                            android:inputType="textAutoComplete"
+                            android:maxLength="20"
+                            android:singleLine="true"
+                            android:textColor="#8c8c98"
+                            android:textColorHint="#ccccd2"
+                            android:textCursorDrawable="@drawable/color_cursor"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/img_user_clean"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:padding="5dp"
+                            android:src="@mipmap/ic_cross"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/login_userCode_layout"
+                        android:layout_marginTop="6dp"
+                        android:background="#ccccd2"
+                        android:contentDescription="@string/app_name" />
+
+                    <LinearLayout
+                        android:id="@+id/login_password_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="12dp"
+                            android:layout_height="12dp"
+                            android:layout_gravity="center_vertical"
+                            android:contentDescription="@string/app_name"
+                            android:src="@mipmap/ic_mima_snow" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="11dp"
+                            android:layout_marginRight="14dp"
+                            android:text="@string/login_password"
+                            android:textColor="#ccccd2"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="6dp"
+                            android:layout_marginRight="6dp"
+                            android:text="@string/login_blank"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+
+                        <EditText
+                            android:id="@+id/login_password"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:hint="@string/login_password_hint"
+                            android:inputType="textPassword"
+                            android:maxLength="16"
+                            android:singleLine="true"
+                            android:textColor="#8c8c98"
+                            android:textColorHint="#ccccd2"
+                            android:textCursorDrawable="@drawable/color_cursor"
+                            android:textSize="14sp" />
+
+                        <ImageView
+                            android:id="@+id/img_pass_clean"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:padding="5dp"
+                            android:src="@mipmap/ic_cross"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/login_password_layout"
+                        android:layout_marginTop="6dp"
+                        android:background="#ccccd2"
+                        android:contentDescription="@string/app_name" />
+
+                    <Button
+                        android:id="@+id/bt_login"
+                        android:layout_width="wrap_content"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="25dp"
+                        android:background="@drawable/login_btn_selector" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp">
+
+                        <TextView
+                            android:id="@+id/login_register"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/login_register"
+                            android:textColor="#65caff"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:id="@+id/login_forget_password"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:text="@string/login_forget_password"
+                            android:textColor="#ccccd2"
+                            android:textSize="13sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/loadingbar"
+                    layout="@layout/loadingbar" />
+            </FrameLayout>
+        </LinearLayout>
+        <!--账号 密码 登陆 注册 -->
+    </LinearLayout>
+</net.iclassmate.xydspace.view.MyScrollView>

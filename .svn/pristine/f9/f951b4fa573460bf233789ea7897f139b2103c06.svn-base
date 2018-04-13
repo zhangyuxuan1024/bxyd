@@ -1,0 +1,798 @@
+package net.iclassmate.xydspace.ui.activity.information;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.contacts.FindUserInfo;
+import net.iclassmate.xydspace.bean.message.UserMessage;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.ui.activity.chat.ChatActivity;
+import net.iclassmate.xydspace.ui.activity.chat.DiscussionActivity;
+import net.iclassmate.xydspace.ui.activity.constacts.SendFriendRequestActivity;
+import net.iclassmate.xydspace.ui.activity.owner.HomePageActivity;
+import net.iclassmate.xydspace.utils.HttpManager;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.Loading;
+import net.iclassmate.xydspace.view.TitleBar;
+import net.iclassmate.xydspace.view.study.ShapeImageView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UserInfo;
+import io.rong.message.ImageMessage;
+import io.rong.message.TextMessage;
+import io.rong.message.VoiceMessage;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+public class FriendInformationActivity extends FragmentActivity implements TitleBar.TitleOnClickListener, View.OnClickListener {
+    private Context mContext;
+    private TitleBar titleBar;
+    private String friendId, userId, iconUrl;
+    private String type;
+    private boolean isFriend;
+    private RelativeLayout study_space, friend_chat_file;
+    private Button chat, delete, person, groupOrorg;
+    private TextView name, userCode, tv_remarks_name;
+    private ImageView gender, icon, img_add_care;
+    private Loading loading;
+    private HttpManager httpManager;
+    private String result;
+    //    private FindUserInfo findUserInfo;
+    private FindUserInfo findUserInfo;
+    private String targetId, sessionName, sessionIcon, author;
+    private LinearLayout mBtn, ll_add_cancel_care;
+    private int function;   //判断当前机构   0：个人    1：机构    2：群组
+    public final static int GET_FRIENDINFO_SUCCEED = 1;
+    public final static int GET_FRIENDINFO_FAIL = 2;
+    public static final int EXIT_GROUP_SUCCEED = 9;
+    public static final int EXIT_GROUP_FAIL = 10;
+    private SharedPreferences sp;
+    private OkHttpClient client;
+    private String from, spaceid, uName, uCode, userinfo;
+    private boolean iscare;
+    private long last_click;
+    //    private ArrayList<GroupInfo> groupList;
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case GET_FRIENDINFO_FAIL:
+                    loading.hideLoading(true);
+                    //Toast.makeText(UIUtils.getContext(), "获取好友信息失败", Toast.LENGTH_SHORT).show();
+                    break;
+                case GET_FRIENDINFO_SUCCEED:
+                    loading.hideLoading(true);
+//                    Log.i("info", "好友信息=" + result);
+                    try {
+                        JSONObject jsonObject = new JSONObject(result);
+                        if (!TextUtils.isEmpty(jsonObject.getString("remark"))) {
+                            uName = jsonObject.getString("remark");
+                        }
+                        uCode = jsonObject.getString("userCode");
+                        name.setText(uName);
+                        userCode.setText("用户号：" + uCode);
+                        iconUrl = String.format(Constant.STUDY_GET_USER_PIC, friendId);
+                        Picasso.with(mContext).load(iconUrl).config(Bitmap.Config.RGB_565).placeholder(R.mipmap.ic_touxiang_mingpian).resize(106, 106).into(icon);
+                    } catch (Exception e) {
+                        Toast.makeText(UIUtils.getContext(), "获取好友信息失败", Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (type != null) {
+                        if (type.equals("group")) {
+                            icon.setBackgroundResource(R.mipmap.ic_touxiang_qunmingpian);
+                        } else if (type.equals("org")) {
+                            icon.setBackgroundResource(R.mipmap.ic_touxiang_jigoumingpian);
+                        }
+                    }
+                    break;
+                //删除好友
+                case 3:
+                    int ret = msg.arg1;
+                    if (ret == 200) {
+                        Toast.makeText(mContext, "好友已删除", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                //判断2人是否是好友
+                case 4:
+                    initData();
+                    break;
+                //判断是否关注
+                case 7:
+                    int code = msg.arg1;
+                    if (code == 200) {
+                        String result = (String) msg.obj;
+                        try {
+                            JSONObject object = new JSONObject(result);
+                            iscare = object.getBoolean("isRelated");
+                            if (iscare) {
+                                img_add_care.setImageResource(R.mipmap.bt_open);
+                            } else {
+                                img_add_care.setImageResource(R.mipmap.bt_close);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                //获取spaceId
+                case 8:
+                    code = msg.arg1;
+                    if (code == 200) {
+                        String result = (String) msg.obj;
+                        JSONObject object = null;
+                        try {
+                            object = new JSONObject(result);
+                            spaceid = object.getString("uuid");
+                            String sid = sp.getString(Constant.ID_SPACE, "");
+                            getSpaceRelation(sid, spaceid);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+                case EXIT_GROUP_SUCCEED:    //退群成功
+                    if (!result.equals("404")) {
+                        if (result.equals("100")) {
+                            Log.i("TAG", "user退出群组失败，没有网络");
+                            Toast.makeText(UIUtils.getContext(), "您没有连接网络，请连接后再重试！", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.i("TAG", "user退出群组成功");
+                            Toast.makeText(UIUtils.getContext(), "退群成功", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent();
+                            intent.putExtra("exit", "exit_group");
+                            FriendInformationActivity.this.setResult(10, intent);
+                            FriendInformationActivity.this.finish();
+                        }
+
+                    } else {
+                        Log.i("TAG", "user退出群组失败");
+                        Toast.makeText(UIUtils.getContext(), "退群失败", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case 11:
+                    try {
+                        JSONObject jsonObject = new JSONObject(userinfo);
+                        UserMessage userMessage = new UserMessage();
+                        userMessage.parserJson(jsonObject);
+                        uName = userMessage.getUserInfo().getName();
+                        uCode = userMessage.getUserInfo().getUserCode();
+                        name.setText(uName);
+                        userCode.setText("用户号：" + uCode);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_friend_information);
+
+        mContext = this;
+        sp = mContext.getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        userId = sp.getString(Constant.ID_USER, "");
+        initView();
+
+        from = getIntent().getStringExtra("from");
+        if (from.equals("ContactsActivity")) {
+            function = 0;
+            type = "person";
+            friendId = getIntent().getStringExtra("friendId");
+        } else if (from.equals("GroupListActivity")) {
+            function = 2;
+            friendId = getIntent().getStringExtra("sessionId");
+            type = getIntent().getStringExtra("type");
+            sessionName = getIntent().getStringExtra("sessionName");
+            sessionIcon = getIntent().getStringExtra("sessionIcon");
+            author = getIntent().getStringExtra("author");
+        } else if (from.equals("FriendResActivity")) {
+            type = getIntent().getStringExtra("type");
+            friendId = getIntent().getStringExtra("id");
+            uName = getIntent().getStringExtra("name");
+            uCode = getIntent().getStringExtra("code");
+            name.setText(uName);
+            userCode.setText("用户号：" + uCode);
+            isFriend();
+        } else if (from.equals("EmotionMainFragment")) {
+            type = getIntent().getStringExtra("type");
+            String uid = sp.getString(Constant.ID_USER, "");
+            uName = "-1";
+            uCode = "-1";
+            getMyInfo(uid, false);
+        }
+        loadSpaceId();
+        initLinstener();
+
+        switch (function) {
+            case 0:     //个人
+                isFriend();
+                break;
+
+            case 1:     //机构
+                break;
+
+            case 2:     //群组
+                if (userId.equals(author))   //判断当前登录用户是否为该群群主
+                {
+                    friend_chat_file.setVisibility(View.VISIBLE);
+                    tv_remarks_name.setText("修改群组名称");
+                } else {
+                    friend_chat_file.setVisibility(View.GONE);
+                }
+                loading.hideLoading(true);
+                name.setText(sessionName);
+                ll_add_cancel_care.setVisibility(View.GONE);
+                titleBar.setTitle("群聊资料");
+                gender.setVisibility(View.INVISIBLE);
+                delete.setBackgroundResource(R.drawable.friend_info_exit_group_selector);
+                if (!TextUtils.isEmpty(sessionIcon)) {
+                    Picasso.with(FriendInformationActivity.this).load(sessionIcon).resize(106, 106).into(icon);
+                }
+                break;
+        }
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.friend_info_title_bar);
+        titleBar.setTitle("好友资料");
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui, "返回");
+
+        study_space = (RelativeLayout) findViewById(R.id.friend_info_studyspace);
+        chat = (Button) findViewById(R.id.friend_info_chat_btn);
+        delete = (Button) findViewById(R.id.friend_info_delete_friend);
+        name = (TextView) findViewById(R.id.friend_info_name);
+        userCode = (TextView) findViewById(R.id.friend_info_userCode);
+        icon = (ShapeImageView) findViewById(R.id.friend_info_icon);
+        gender = (ImageView) findViewById(R.id.friend_info_gender);
+        mBtn = (LinearLayout) findViewById(R.id.friend_btn_layout);
+        person = (Button) findViewById(R.id.person_btn);
+        groupOrorg = (Button) findViewById(R.id.group_org_btn);
+        img_add_care = (ImageView) findViewById(R.id.add_cancel_care);
+        ll_add_cancel_care = (LinearLayout) findViewById(R.id.ll_add_cancel_care);
+        friend_chat_file = (RelativeLayout) super.findViewById(R.id.friend_chat_file);
+        tv_remarks_name = (TextView) super.findViewById(R.id.tv_remarks_name);
+        img_add_care.setOnClickListener(this);
+
+        httpManager = new HttpManager();
+        loading = new Loading(findViewById(R.id.loading_layout), (LinearLayout) findViewById(R.id.friend_info_noLoading));
+        loading.showLoading(true);
+
+        study_space.setOnClickListener(this);
+        delete.setOnClickListener(this);
+        friend_chat_file.setOnClickListener(this);
+    }
+
+    private void initData() {
+        if (!from.equals("ContactsActivity")) {
+            if (isFriend) {
+                titleBar.setTitle("好友资料");
+            } else {
+                if (type.equals("person")) {
+                    titleBar.setTitle("个人资料");
+                    mBtn.setVisibility(View.GONE);
+                    groupOrorg.setVisibility(View.GONE);
+                    person.setVisibility(View.GONE);
+                    if (from.equals("FriendResActivity")) {
+                        String id = sp.getString(Constant.ID_USER, "");
+                        if (id.equals(friendId)) {
+                            titleBar.setTitle("个人资料");
+                            mBtn.setVisibility(View.GONE);
+                            groupOrorg.setVisibility(View.GONE);
+                            person.setVisibility(View.GONE);
+                        } else {
+                            titleBar.setTitle("好友资料");
+                            mBtn.setVisibility(View.GONE);
+                            groupOrorg.setVisibility(View.GONE);
+                            person.setVisibility(View.VISIBLE);
+                        }
+                    }
+                } else if (type.equals("group")) {
+                    titleBar.setTitle("群组资料");
+                    mBtn.setVisibility(View.GONE);
+                    person.setVisibility(View.GONE);
+                    groupOrorg.setVisibility(View.VISIBLE);
+                } else if (type.equals("org")) {
+                    titleBar.setTitle("机构资料");
+                    mBtn.setVisibility(View.GONE);
+                    person.setVisibility(View.GONE);
+                    groupOrorg.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+
+        if (uCode != null && uName != null && !uCode.equals("") && !uName.equals("")) {
+            loading.hideLoading(true);
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                result = httpManager.getUserRemarkName(userId, friendId);
+                if (result.equals("404")) {
+                    handler.sendEmptyMessage(GET_FRIENDINFO_FAIL);
+                } else {
+                    handler.sendEmptyMessage(GET_FRIENDINFO_SUCCEED);
+                }
+            }
+        }).start();
+
+
+    }
+
+    private void initLinstener() {
+        titleBar.setTitleClickListener(this);
+        study_space.setOnClickListener(this);
+        chat.setOnClickListener(this);
+        delete.setOnClickListener(this);
+        person.setOnClickListener(this);
+        groupOrorg.setOnClickListener(this);
+    }
+
+    @Override
+    public void leftClick() {
+        close();
+    }
+
+    private void close() {
+        Intent intent = new Intent();
+        if (function == 0) {
+            setResult(RESULT_OK, intent);
+        }
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        close();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.friend_info_chat_btn:
+                if (function == 0) {
+                    Intent startChat = new Intent(UIUtils.getContext(), ChatActivity.class);
+                    startChat.putExtra("from", "FriendInformationActivity");
+                    startChat.putExtra("targetId", friendId);
+                    startChat.putExtra("type", Conversation.ConversationType.PRIVATE);
+                    startChat.putExtra("name", uName);
+                    startChat.putExtra("iconUrl", iconUrl);
+                    startActivity(startChat);
+                } else if (function == 2) {
+                    Intent startDiscussion = new Intent(UIUtils.getContext(), DiscussionActivity.class);
+                    startDiscussion.putExtra("from", "FriendInformationActivity");
+                    startDiscussion.putExtra("sessionName", sessionName);
+                    startDiscussion.putExtra("sessionId", friendId);
+                    startDiscussion.putExtra("author", author);
+                    startDiscussion.putExtra("sessionIcon", sessionIcon);
+                    startActivity(startDiscussion);
+                }
+
+                finish();
+                break;
+            case R.id.friend_info_delete_friend:
+                Log.i("info", "function=" + function);
+                if (function == 0) {
+                    String uid = sp.getString(Constant.ID_USER, "");
+                    if (friendId != null && friendId.equals("")) {
+                        delFri(uid, friendId);
+                        delConversation(friendId);
+                        sendDelMessage();
+                    }
+                } else if (function == 2) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String userId = sp.getString(Constant.ID_USER, "");
+                            String name = sp.getString("name", "");
+                            final List<String> userIdList = new ArrayList<>();
+                            final List<String> userNameList = new ArrayList<>();
+                            userIdList.add(userId);
+                            userNameList.add(name);
+                            result = httpManager.exitGroup(targetId, userIdList, userNameList);
+                            handler.sendEmptyMessage(EXIT_GROUP_SUCCEED);
+                        }
+                    }).start();
+                }
+                String uid = sp.getString(Constant.ID_USER, "");
+                delFri(uid, friendId);
+                delConversation(friendId);
+                sendDelMessage();
+                break;
+            case R.id.friend_info_studyspace:
+                Intent intent = new Intent(mContext, HomePageActivity.class);
+                switch (function) {
+                    case 0:     //个人
+
+                        break;
+
+                    case 1:     //机构
+                        break;
+
+                    case 2:     //群组
+                        intent.putExtra(Constant.ID_USER, targetId);
+                        break;
+                }
+                intent.putExtra(Constant.ID_USER, friendId);
+                intent.putExtra(Constant.ID_SPACE, "-1");
+                startActivity(intent);
+                break;
+            case R.id.person_btn:
+                Intent toSendRe = new Intent(UIUtils.getContext(), SendFriendRequestActivity.class);
+                toSendRe.putExtra("oppositeId", friendId);
+                startActivity(toSendRe);
+                break;
+            case R.id.group_org_btn:
+                break;
+            case R.id.add_cancel_care:
+                if (spaceid.equals("") || System.currentTimeMillis() - last_click < 3000) {
+                    return;
+                }
+                last_click = System.currentTimeMillis();
+                if (iscare) {
+                    cancelCare();
+                    img_add_care.setImageResource(R.mipmap.bt_close);
+                    Toast.makeText(mContext, "已取消关注", Toast.LENGTH_SHORT).show();
+                } else {
+                    addCare();
+                    img_add_care.setImageResource(R.mipmap.bt_open);
+                    Toast.makeText(mContext, "已添加关注", Toast.LENGTH_SHORT).show();
+                }
+                iscare = !iscare;
+                break;
+            case R.id.friend_chat_file: //修改备注名或群组名称
+                Intent startUpdate = new Intent(UIUtils.getContext(), SendFriendRequestActivity.class);
+                startUpdate.putExtra("from", "FriendInformationActivity");
+                startUpdate.putExtra("friendId", friendId);
+                switch (function) {
+                    case 0:     //个人
+                        startUpdate.putExtra("friendName", uName);
+                        startUpdate.putExtra("type", type);
+                        break;
+
+                    case 1:     //机构
+                        break;
+
+                    case 2:     //群组
+                        startUpdate.putExtra("type", type);
+                        startUpdate.putExtra("sessionName", sessionName);
+                        break;
+                }
+                startActivityForResult(startUpdate, 11);
+                break;
+        }
+    }
+
+    //发送删除好友消息
+    private void sendDelMessage() {
+        Log.i("info", "发送删除好友消息");
+        String uname = sp.getString(Constant.USER_NAME, "");
+        String uid = sp.getString(Constant.ID_USER, "");
+        JSONObject json = new JSONObject();
+        try {
+            json.put("MessageType", 7);
+            json.put("ContentType", 1);
+            json.put("ChatType", 0);
+            json.put("Content", "");
+            json.put("FontSize", 14);
+            json.put("FontStyle", 0);
+            json.put("FontColor", 0);
+            json.put("BulletinID", "");
+            json.put("BulletinContent", "");
+            json.put("requestName", uname);
+            json.put("requestRemark", "");
+            json.put("requestGroupId", "");
+            json.put("FileID", "");
+            json.put("FileName", "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        final String message = json.toString();
+
+        UserInfo userInfo = new UserInfo(uid, uname, null);
+        final TextMessage textMessage = TextMessage.obtain(message);
+        textMessage.setUserInfo(userInfo);
+
+        RongIMClient.getInstance().sendMessage(Conversation.ConversationType.PRIVATE, friendId,
+                textMessage, null, null, new RongIMClient.SendMessageCallback() {
+                    @Override
+                    public void onSuccess(Integer integer) {
+
+                    }
+
+                    @Override
+                    public void onError(Integer integer, RongIMClient.ErrorCode errorCode) {
+
+                    }
+                }, new RongIMClient.ResultCallback<io.rong.imlib.model.Message>() {
+                    @Override
+                    public void onError(RongIMClient.ErrorCode errorCode) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(io.rong.imlib.model.Message message) {
+
+                    }
+                });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 11) {
+            name.setText(data.getStringExtra("remarksName"));
+        }
+    }
+
+    //删除会话
+    private void delConversation(final String fid) {
+        RongIMClient.getInstance().getConversationList(new RongIMClient.ResultCallback<List<Conversation>>() {
+            @Override
+            public void onSuccess(List<Conversation> conversations) {
+                if (conversations != null && conversations.size() > 0) {
+                    for (int i = 0; i < conversations.size(); i++) {
+                        Conversation conversation = conversations.get(i);
+                        String id = conversation.getTargetId();
+                        if (fid.equals(id)) {
+                            RongIMClient.getInstance().removeConversation(conversation.getConversationType(), id);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+
+            }
+        });
+    }
+
+    //删除好友
+    private void delFri(final String userId, final String friendId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int ret = httpManager.delFri(userId, friendId);
+                Message msg = new Message();
+                msg.what = 3;
+                msg.arg1 = ret;
+                handler.sendMessage(msg);
+            }
+        }).start();
+    }
+
+    //是否为好友
+    private void isFriend() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                result = httpManager.isFriend(sp.getString(Constant.ID_USER, ""), friendId);
+                if (result != null && !result.equals("404")) {
+                    if (result.equals("true")) {
+                        isFriend = true;
+                    } else if (result.equals("false")) {
+                        isFriend = false;
+                    }
+                    handler.sendEmptyMessage(4);
+                }
+            }
+        }).start();
+    }
+
+    //取消关注
+    private void cancelCare() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String sid = sp.getString(Constant.ID_SPACE, "");
+                OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS);
+                client = builder.build();
+                Request request = new Request.Builder()
+                        .url(String.format(Constant.STUDY_CANCEL_CARE, sid, spaceid, "concern"))
+                        .delete()
+                        .build();
+                //Log.i("info", "取消关注参数=" + String.format(Constant.STUDY_CANCEL_CARE, sid, spaceid, "concern"));
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    Message message = new Message();
+                    message.what = 5;
+                    message.arg1 = response.code();
+                    message.obj = response.body().string();
+                    handler.sendMessage(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //mHandler.sendEmptyMessage(400);
+                }
+            }
+        }).start();
+    }
+
+    //添加关注
+    private void addCare() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                String json = "";
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    String sid = sp.getString(Constant.ID_SPACE, "");
+                    jsonObject.put("mainSpaceId", sid);
+                    jsonObject.put("subSpaceId", spaceid);
+                    jsonObject.put("relationType", "concern");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                json = jsonObject.toString();
+                //Log.i("info", "添加关注参数=" + json);
+                RequestBody body = RequestBody.create(JSON, json);
+                OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS);
+                client = builder.build();
+                Request request = new Request.Builder()
+                        .url(Constant.STUDY_ADD_CARE)
+                        .post(body)
+                        .build();
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    Message message = new Message();
+                    message.what = 6;
+                    message.arg1 = response.code();
+                    message.obj = response.body().string();
+                    handler.sendMessage(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //mHandler.sendEmptyMessage(400);
+                }
+            }
+        }).start();
+    }
+
+    //判断是否关注
+    private void getSpaceRelation(final String sid, final String spaceid) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                client = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url(String.format(Constant.STUDY_SELECT_SPACE_RELATIONSHIP, sid, spaceid))
+                        .build();
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    if (response.isSuccessful()) {
+                        Message msg = new Message();
+                        msg.what = 7;
+                        msg.arg1 = response.code();
+                        msg.obj = response.body().string();
+                        handler.sendMessage(msg);
+                    } else {
+                        //mHandler.sendEmptyMessage(404);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    //获取spaceid
+    private void loadSpaceId() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url(Constant.GETSPACEID_URL + friendId)
+                        .get()
+                        .build();
+//                Log.i("info", "获取spaceid " + Constant.GETSPACEID_URL + friendId);
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        //mHandler.sendEmptyMessage(404);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Message message = new Message();
+                        message.what = 8;
+                        message.arg1 = response.code();
+                        message.obj = response.body().string();
+                        handler.sendMessage(message);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    /**
+     * 判断当前用户是否是该群组的成员
+     */
+    private void isGroup() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        }).start();
+    }
+
+    public void getMyInfo(final String userId, final boolean needicon) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                userinfo = httpManager.getUserInfo(userId, needicon);
+                handler.sendEmptyMessage(11);
+            }
+        }).start();
+    }
+}

@@ -1,0 +1,254 @@
+package net.iclassmate.xydspace.ui.activity.constacts;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.contacts.FindUserInfo;
+import net.iclassmate.xydspace.bean.message.UserMessage;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.ui.activity.information.FriendInformationActivity;
+import net.iclassmate.xydspace.utils.HttpManager;
+import net.iclassmate.xydspace.utils.JsonUtils;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.Loading;
+import net.iclassmate.xydspace.view.TitleBar;
+import net.iclassmate.xydspace.view.study.ShapeImageView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FriendResActivity extends FragmentActivity implements TitleBar.TitleOnClickListener {
+    private String type, key, mId;
+    private String result;
+    private Context mContext;
+    private TitleBar titleBar;
+    private ListView mResult;
+    private ImageView mNoResult;
+    private Loading loading;
+    private HttpManager httpManager;
+    private MyAdapter myAdapter;
+    private List<UserMessage> findUserInfos;
+    private SharedPreferences sp;
+    private static final int FIND_USER_SUCCESS = 0;
+    private static final int FIND_USER_FAIL = 1;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case FIND_USER_SUCCESS:
+                    loading.hideLoading(true);
+                    if (result != null) {
+                        try {
+                            JSONArray array = new JSONArray(result);
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject json = array.optJSONObject(i);
+                                if (json != null) {
+                                    UserMessage message = new UserMessage();
+                                    message.parserJson(json);
+                                    findUserInfos.add(message);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if (findUserInfos.size() == 0) {
+                            mNoResult.setVisibility(View.VISIBLE);
+                            mResult.setVisibility(View.GONE);
+                        } else {
+                            if (myAdapter != null) {
+                                myAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+                    result = null;
+                    break;
+                case FIND_USER_FAIL:
+                    loading.hideLoading(true);
+                    Toast.makeText(UIUtils.getContext(), "搜索好友失败，请稍候再试", Toast.LENGTH_SHORT).show();
+                    mNoResult.setVisibility(View.VISIBLE);
+                    mResult.setVisibility(View.GONE);
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_friend_res);
+        mContext = this;
+        initView();
+        initData();
+        initListener();
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.friend_result_title_bar);
+        titleBar.setTitle("搜索结果");
+        titleBar.setLeftIcon(R.mipmap.ic_fanhui, "返回");
+
+        mResult = (ListView) findViewById(R.id.friend_result_lv);
+        httpManager = new HttpManager();
+        mNoResult = (ImageView) findViewById(R.id.search_no_result);
+        loading = new Loading(findViewById(R.id.loading_layout), (LinearLayout) findViewById(R.id.search_result_layout));
+
+        sp = mContext.getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        findUserInfos = new ArrayList<>();
+        myAdapter = new MyAdapter();
+        mResult.setAdapter(myAdapter);
+    }
+
+    private void initData() {
+        type = getIntent().getStringExtra("type");
+        key = getIntent().getStringExtra("key");
+        loading.showLoading(true);
+        final boolean isNum = isNum(key);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                result = httpManager.searchInfo(key, type);
+                if (result.equals("404")) {
+                    mHandler.sendEmptyMessage(FIND_USER_FAIL);
+                } else {
+                    mHandler.sendEmptyMessage(FIND_USER_SUCCESS);
+                }
+            }
+        }).start();
+    }
+
+    private void initListener() {
+        titleBar.setTitleClickListener(this);
+        mResult.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                           @Override
+                                           public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                                               mId = findUserInfos.get(position).getId();
+                                               Intent toInfor = new Intent(UIUtils.getContext(), FriendInformationActivity.class);
+                                               toInfor.putExtra("from", "FriendResActivity");
+                                               toInfor.putExtra("id", findUserInfos.get(position).getId());
+                                               toInfor.putExtra("type", type);
+                                               toInfor.putExtra("isFriend", false);
+                                               toInfor.putExtra("name", findUserInfos.get(position).getUserInfo().getName());
+                                               toInfor.putExtra("code", findUserInfos.get(position).getUserInfo().getUserCode());
+                                               startActivity(toInfor);
+                                           }
+                                       }
+        );
+    }
+
+    private boolean isNum(String key) {
+        boolean ret = true;
+        for (int i = 0; i < key.length(); i++) {
+            char a = key.charAt(i);
+            if (a < '0' || a > '9') {
+                ret = false;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    class MyAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return findUserInfos.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return findUserInfos.get(i);
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return arg0;
+        }
+
+        class ViewHolder {
+            TextView tvName, tvCode;
+            ImageView imageIcon;
+        }
+
+
+        @Override
+        public View getView(int i, View v, ViewGroup vg) {
+            ViewHolder holder = null;
+            if (v == null) {
+                v = LayoutInflater.from(mContext).inflate(R.layout.user_item, null);
+                holder = new ViewHolder();
+                holder.tvName = (TextView) v.findViewById(R.id.user_name);
+                holder.imageIcon = (ShapeImageView) v.findViewById(R.id.user_icon);
+                holder.tvCode = (TextView) v.findViewById(R.id.user_code);
+                v.setTag(holder);
+            } else {
+                holder = (ViewHolder) v.getTag();
+            }
+
+            UserMessage message = findUserInfos.get(i);
+            if (message != null && message.getUserInfo() != null) {
+                holder.tvName.setText(message.getUserInfo().getName());
+                holder.tvCode.setText(message.getUserInfo().getUserCode());
+            }
+            if (type.equals("person")) {
+                holder.imageIcon.setBackgroundResource(R.mipmap.ic_geren_xuanren);
+            } else if (type.equals("group")) {
+                holder.imageIcon.setBackgroundResource(R.mipmap.ic_qunzu_xuanren);
+            } else if (type.equals("org")) {
+                holder.imageIcon.setBackgroundResource(R.mipmap.ic_jigoumoren_wangpan);
+            }
+            if (findUserInfos.get(i).getId() != null) {
+                String iconUrl = Constant.ADDRESS_STUDY + findUserInfos.get(i).getId();
+                Picasso.with(mContext).load(iconUrl).resize(106, 106).into(holder.imageIcon);
+            }
+            return v;
+        }
+
+    }
+
+    @Override
+    public void leftClick() {
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+}

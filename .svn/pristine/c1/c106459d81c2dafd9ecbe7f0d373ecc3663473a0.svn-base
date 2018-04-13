@@ -1,0 +1,837 @@
+package net.iclassmate.xydspace.ui.activity.owner;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.adapter.study.StudySpaceAdapter;
+import net.iclassmate.xydspace.bean.study.OriginBulletinInfo;
+import net.iclassmate.xydspace.bean.study.Resources;
+import net.iclassmate.xydspace.bean.study.StudyMessageItem;
+import net.iclassmate.xydspace.bean.study.StudyMessageList;
+import net.iclassmate.xydspace.constant.Constant;
+import net.iclassmate.xydspace.constant.StudyConstance;
+import net.iclassmate.xydspace.ui.activity.study.CommentActivity;
+import net.iclassmate.xydspace.ui.activity.study.LookPicActivity;
+import net.iclassmate.xydspace.ui.activity.study.MessageAlertActivity;
+import net.iclassmate.xydspace.ui.activity.study.ReleaseActivity;
+import net.iclassmate.xydspace.ui.activity.study.StudyWindowActivity;
+import net.iclassmate.xydspace.ui.activity.study.openfile.OpenAudioActivity;
+import net.iclassmate.xydspace.ui.activity.study.openfile.OpenFailActivity;
+import net.iclassmate.xydspace.ui.activity.study.openfile.OpenPicActivity;
+import net.iclassmate.xydspace.ui.activity.study.openfile.OpenTextFileActivity;
+import net.iclassmate.xydspace.ui.activity.study.openfile.OpenVideoActivity;
+import net.iclassmate.xydspace.utils.NetWorkUtils;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.FullListView;
+import net.iclassmate.xydspace.view.pullrefreshview.MyListener;
+import net.iclassmate.xydspace.view.pullrefreshview.PullToRefreshLayout;
+import net.iclassmate.xydspace.view.study.ShapeImageView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Cache;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+public class HomePageActivity extends FragmentActivity implements View.OnClickListener, View.OnTouchListener {
+    private LinearLayout message_linear;
+    private StudySpaceAdapter adapter;
+    private FullListView listView;
+    private List<StudyMessageItem> listMessage;
+    private Context mContext;
+    private StudyMessageList smlist;
+    private OkHttpClient client;
+
+    private TextView tv_back, tv_title;
+    private ImageView img_back, img_right, img_anim, img_care;
+    private ShapeImageView img_user;
+    private AnimationDrawable anim;
+    public static final int REQ_RELEASE = 1;
+    public static final int REQ_COMMENT_COUNT = 2;
+    private static final int REQ_DEL = 3;
+    //当前点击的项
+    private int cur_index;
+
+    private String spaceid, userid;
+    private SharedPreferences sharedPreferences;
+    private boolean isdel, isCare, isCareCanClick;
+    private int pages, pageSize, total;
+    private PullToRefreshLayout pull;
+    private long last_click_time;
+    public Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            int what = msg.what;
+            anim.stop();
+            if (what == 1) {
+                img_anim.setVisibility(View.GONE);
+                String result = (String) msg.obj;
+                try {
+                    result = removeBOM(result);
+                    JSONObject json = new JSONObject(result);
+                    smlist = new StudyMessageList();
+                    smlist.parserJson(json);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (smlist == null || smlist.getList() == null || smlist.getList().size() < 1) {
+                    if (pages == 1 && listMessage.size() < 1) {
+                        img_anim.setBackgroundColor(Color.WHITE);
+                        img_anim.setVisibility(View.VISIBLE);
+                        img_anim.setImageResource(R.mipmap.ic_noresult_zhuyedongtai);
+                        pull.refreshFinish(PullToRefreshLayout.SUCCEED);
+                        pull.loadmoreFinish(PullToRefreshLayout.SUCCEED);
+                        return;
+                    }
+                }
+                List<StudyMessageItem> smlistList = smlist.getList();
+                if (pages == 1) {
+                    listMessage.clear();
+                    pull.refreshFinish(PullToRefreshLayout.SUCCEED);
+                } else {
+                    pull.loadmoreFinish(PullToRefreshLayout.SUCCEED);
+                }
+                listMessage.addAll(smlistList);
+                adapter.notifyDataSetChanged();
+                total = smlist.getTotal();
+                tv_title.setText(listMessage.get(0).getCreateBy().getName());
+            } else if (what == 2) {
+                int code = msg.arg1;
+                if (code == 200) {
+                    String ret = (String) msg.obj;
+                    try {
+                        JSONObject object = new JSONObject(ret);
+                        spaceid = object.getString("uuid");
+
+                        String uid = sharedPreferences.getString(Constant.ID_USER, "");
+                        String sid = sharedPreferences.getString(Constant.ID_SPACE, "");
+                        if (!uid.equals(userid)) {
+                            getSpaceRelation(sid, spaceid);
+                            img_right.setVisibility(View.INVISIBLE);
+                            img_care.setVisibility(View.VISIBLE);
+                        }
+                        loadData();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    img_anim.setBackgroundColor(Color.WHITE);
+                    img_anim.setVisibility(View.VISIBLE);
+                    img_anim.setImageResource(R.mipmap.ic_noresult_xiaoxi);
+                }
+            } else if (what == 3) {
+                int code = msg.arg1;
+                if (code == 200) {
+                    String ret = (String) msg.obj;
+                    //Log.i("info", "关注=ret=" + ret + "code=" + code);
+                    try {
+                        JSONObject object = new JSONObject(ret);
+                        isCare = object.getBoolean("isRelated");
+                        if (isCare) {
+                            img_care.setImageResource(R.mipmap.bt_quxiaoguanzhu_zhuye);
+                        } else {
+                            img_care.setImageResource(R.mipmap.bt_jiaguanzhu_zhuye);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else if (what == 4) {
+                int code = msg.arg1;
+                String ret = (String) msg.obj;
+                //Log.i("info", "添加关注=ret=" + ret + "code=" + code);
+                if (code == 200) {
+                    Toast.makeText(mContext, "已关注！", Toast.LENGTH_SHORT).show();
+                } else if (code == 400) {
+                    Toast.makeText(mContext, "空间已被关注，不能重复关注！", Toast.LENGTH_SHORT).show();
+                }
+            } else if (what == 5) {
+                isCareCanClick = true;
+                int code = msg.arg1;
+                String ret = (String) msg.obj;
+                //Log.i("info", "取消关注=ret=" + ret + "code=" + code);
+                if (code == 200) {
+                    Toast.makeText(mContext, "已取消关注！", Toast.LENGTH_SHORT).show();
+                }
+            } else if (what == 404) {
+                pull.refreshFinish(PullToRefreshLayout.FAIL);
+                pull.loadmoreFinish(PullToRefreshLayout.FAIL);
+                img_anim.setBackgroundColor(Color.WHITE);
+                img_anim.setVisibility(View.VISIBLE);
+                img_anim.setImageResource(R.mipmap.img_jiazaishibai);
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home_page);
+
+        Intent intent = getIntent();
+        spaceid = intent.getStringExtra(Constant.ID_SPACE);
+        userid = intent.getStringExtra(Constant.ID_USER);
+        sharedPreferences = getSharedPreferences(Constant.SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        if (spaceid == null || spaceid.equals("") || userid == null || userid.equals("")) {
+            spaceid = sharedPreferences.getString(Constant.ID_SPACE, "");
+            userid = sharedPreferences.getString(Constant.ID_USER, "");
+        }
+        initView();
+        initEvent();
+        String uid = sharedPreferences.getString(Constant.ID_USER, "");
+        String sid = sharedPreferences.getString(Constant.ID_SPACE, "");
+
+        if (!uid.equals(userid)) {
+            img_right.setVisibility(View.INVISIBLE);
+            img_care.setVisibility(View.VISIBLE);
+        } else {
+            img_right.setVisibility(View.VISIBLE);
+            img_care.setVisibility(View.INVISIBLE);
+        }
+        if (!spaceid.equals("-1") && !spaceid.equals("")) {
+            if (!uid.equals(userid)) {
+                getSpaceRelation(sid, spaceid);
+            }
+            loadData();
+        } else {
+            loadSpaceId();
+        }
+    }
+
+    private void loadSpaceId() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url(Constant.GETSPACEID_URL + userid)
+                        .get()
+                        .build();
+                okHttpClient.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        //mHandler.sendEmptyMessage(404);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Message message = new Message();
+                        message.what = 2;
+                        message.arg1 = response.code();
+                        message.obj = response.body().string();
+                        mHandler.sendMessage(message);
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void loadData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    execute(spaceid, pages, pageSize);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void initView() {
+        pull = (PullToRefreshLayout) findViewById(R.id.pull);
+        pull.setOnRefreshListener(new MyListener());
+        pull.setOnTouchListener(this);
+
+        mContext = this;
+        message_linear = (LinearLayout) findViewById(R.id.study_message_linear);
+        //message_linear.setVisibility(View.GONE);
+        listView = (FullListView) findViewById(R.id.study_sapce_listview);
+        listMessage = new ArrayList<>();
+
+        tv_back = (TextView) findViewById(R.id.study_message_left_tv);
+        tv_back.setOnClickListener(this);
+        tv_back.setText("我的");
+        img_back = (ImageView) findViewById(R.id.study_message_back);
+        img_back.setOnClickListener(this);
+        tv_title = (TextView) findViewById(R.id.study_message_title_tv);
+        tv_title.setText("");
+        img_right = (ImageView) findViewById(R.id.study_message_right_icon);
+        img_right.setImageResource(R.mipmap.ic_edit);
+        img_right.setOnClickListener(this);
+        img_right.setVisibility(View.VISIBLE);
+        img_anim = (ImageView) findViewById(R.id.img_anim);
+        anim = (AnimationDrawable) img_anim.getBackground();
+        anim.start();
+        img_user = (ShapeImageView) findViewById(R.id.study_user_img);
+        Picasso.with(mContext).load(String.format(Constant.STUDY_GET_USER_PIC, userid))
+                .placeholder(R.mipmap.ic_head_wode).config(Bitmap.Config.RGB_565).resize(106, 106).into(img_user);
+        isdel = false;
+        isCareCanClick = true;
+        pages = 1;
+        pageSize = 10;
+        img_care = (ImageView) findViewById(R.id.study_sapce_jia_img);
+        img_care.setVisibility(View.INVISIBLE);
+        img_care.setOnClickListener(this);
+
+        adapter = new StudySpaceAdapter(mContext, listMessage);
+        listView.setAdapter(adapter);
+        adapter.setIsCanClickLike(false);
+        adapter.setImgClickComent(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int index = (int) view.getTag();
+                StudyMessageItem message = listMessage.get(index);
+                Intent intent = new Intent(mContext, CommentActivity.class);
+                intent.putExtra("msg", message);
+                intent.putExtra("index", index);
+                startActivityForResult(intent, REQ_COMMENT_COUNT);
+            }
+        });
+        adapter.setImgClickLike(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int index = (int) view.getTag();
+                StudyMessageItem message = listMessage.get(index);
+                int like = message.getLiked();
+                boolean isLike = message.isClickLiked();
+                isLike = !isLike;
+                message.setIsClickLiked(isLike);
+                if (isLike) {
+                    Toast.makeText(mContext, "已点赞", Toast.LENGTH_SHORT).show();
+                    like++;
+                } else {
+                    Toast.makeText(mContext, "取消点赞", Toast.LENGTH_SHORT).show();
+                    like--;
+                }
+                message.setLiked(like);
+                listMessage.set(index, message);
+                adapter.notifyDataSetChanged();
+            }
+        });
+        adapter.setImgClickShare(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, StudyWindowActivity.class);
+                List<String> list = new ArrayList<String>();
+                String uid = sharedPreferences.getString(Constant.ID_USER, "");
+                if (uid != null && !uid.equals("")) {
+                    if (uid.equals(userid)) {
+                        //list.add("转发给好友");
+                        list.add("删除动态");
+                    } else {
+                        list.add("转发到主页");
+                        //list.add("转发给好友");
+                        list.add("收藏");
+                        list.add("举报");
+                    }
+                }
+                intent.putStringArrayListExtra("list", (ArrayList<String>) list);
+                int index = (int) view.getTag();
+                StudyMessageItem message = listMessage.get(index);
+                intent.putExtra("msg", message);
+                cur_index = index;
+                startActivityForResult(intent, REQ_RELEASE);
+            }
+        });
+        adapter.setImgClickHead(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                int index = (int) view.getTag();
+//                Intent intent = new Intent(mContext, HomePageActivity.class);
+//                StudyMessageItem item = listMessage.get(index);
+//                intent.putExtra(Constant.ID_USER, item.getCreateBy().getId());
+//                intent.putExtra(Constant.ID_SPACE, item.getSpaceId());
+//                startActivity(intent);
+            }
+        });
+        adapter.setImgClickHomePage(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int index = (int) v.getTag();
+                StudyMessageItem item = listMessage.get(index);
+                OriginBulletinInfo info = item.getOriginBulletinInfo();
+                if (info != null && info.getCreateBy() != null) {
+                    Intent intent = new Intent(mContext, HomePageActivity.class);
+                    intent.putExtra(Constant.ID_USER, info.getCreateBy().getId());
+                    intent.putExtra(Constant.ID_SPACE, "-1");
+                    startActivityForResult(intent, REQ_DEL);
+                }
+            }
+        });
+        adapter.setGridClick(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                int index = (int) adapterView.getTag();
+                StudyMessageItem item = listMessage.get(index);
+                if (item != null) {
+                    String type = getFileType(item, i);
+                    if (type.equals("图片")) {
+                        openPic(item, i);
+                    } else {
+                        openFile(item, i);
+                    }
+                }
+            }
+        });
+    }
+
+    private void getSpaceRelation(final String sid, final String spaceid) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                client = new OkHttpClient();
+                Request request = new Request.Builder()
+                        .url(String.format(Constant.STUDY_SELECT_SPACE_RELATIONSHIP, sid, spaceid))
+                        .build();
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    if (response.isSuccessful()) {
+                        Message msg = new Message();
+                        msg.what = 3;
+                        msg.arg1 = response.code();
+                        msg.obj = response.body().string();
+                        mHandler.sendMessage(msg);
+                    } else {
+                        //mHandler.sendEmptyMessage(404);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private String getFileType(StudyMessageItem item, int index) {
+        String type = item.getBulletinType().toUpperCase();
+        if (type.equals("ORIGIN")) {
+            if (item.getList() != null && item.getList().size() > index) {
+                type = item.getList().get(index).getType();
+            }
+        } else if (type.equals("FORWARD")) {
+            if (item.getOriginBulletinInfo() != null && item.getOriginBulletinInfo().getList() != null
+                    && item.getOriginBulletinInfo().getList().size() > index) {
+                type = item.getOriginBulletinInfo().getList().get(index).getType();
+            }
+        }
+        return type;
+    }
+
+    //打开所有图片
+    private void openPic(StudyMessageItem item, int index) {
+        String type = item.getBulletinType().toUpperCase();
+        List<Object> list = new ArrayList<>();
+        if (type.equals("ORIGIN")) {
+            if (item.getList() != null && item.getList().size() > 0) {
+                List<Resources> list1 = item.getList();
+                list.addAll(list1);
+            }
+        } else if (type.equals("FORWARD")) {
+            if (item.getOriginBulletinInfo() != null && item.getOriginBulletinInfo().getList() != null
+                    && item.getOriginBulletinInfo().getList().size() > 0) {
+                List<Resources> list1 = item.getOriginBulletinInfo().getList();
+                list.addAll(list1);
+            }
+        }
+
+        Intent intent = new Intent(mContext, LookPicActivity.class);
+        intent.putExtra("type", 1);
+        intent.putExtra("index", index);
+        intent.putExtra("list", (Serializable) list);
+        startActivity(intent);
+    }
+
+    //打开文件
+    private void openFile(StudyMessageItem item, int index) {
+        String id = "", type = "", name = "";
+        type = item.getBulletinType().toUpperCase();
+        Log.i("info", type);
+        if (type.equals("ORIGIN")) {
+            if (item.getList() != null && item.getList().size() > index) {
+                id = item.getList().get(index).getId();
+                type = item.getList().get(index).getType();
+                name = item.getList().get(index).getName().toLowerCase();
+            }
+        } else if (type.equals("FORWARD")) {
+            if (item.getOriginBulletinInfo() != null && item.getOriginBulletinInfo().getList() != null && item.getOriginBulletinInfo().getList().size() > index) {
+                id = item.getOriginBulletinInfo().getList().get(index).getId();
+                type = item.getOriginBulletinInfo().getList().get(index).getType();
+                name = item.getOriginBulletinInfo().getList().get(index).getName().toLowerCase();
+            }
+        }
+        Log.i("info", "文件名=" + name);
+        if (id == "" || type == "") {
+            return;
+        }
+        if (name.contains(".")) {
+            name = name.substring(name.lastIndexOf(".") + 1, name.length());
+        }
+        Intent intent = null;
+        switch (name) {
+            case "doc":
+            case "docx":
+            case "txt":
+            case "pdf":
+            case "wps":
+            case "xls":
+            case "xlsx":
+                intent = new Intent(mContext, OpenTextFileActivity.class);
+                intent.putExtra("id", id);
+                intent.putExtra("name", name);
+                break;
+            case "wav":
+            case "mp3":
+            case "wma":
+            case "wva":
+            case "ogg":
+            case "ape":
+            case "aif":
+            case "au":
+            case "ram":
+            case "mmf":
+            case "amr":
+            case "aac":
+            case "flac":
+                intent = new Intent(mContext, OpenAudioActivity.class);
+                intent.putExtra("id", id);
+                break;
+//            case "xls":
+//            case "xlsx":
+            case "et":
+
+                break;
+            case "ppt":
+            case "pptx":
+            case "dps":
+
+                break;
+            case "avi":
+            case "mpg":
+            case "mpeg":
+            case "mov":
+            case "rm":
+            case "rmvb":
+            case "mp4":
+            case "3gp":
+            case "flv":
+                intent = new Intent(mContext, OpenVideoActivity.class);
+                intent.putExtra("id", id);
+                break;
+            case "bmp":
+            case "gif":
+            case "jpg":
+            case "pic":
+            case "png":
+            case "tif":
+            case "jpeg":
+                intent = new Intent(mContext, OpenPicActivity.class);
+                intent.putExtra("id", id);
+                break;
+            default:
+                intent = new Intent(mContext, OpenFailActivity.class);
+                intent.putExtra("id", id);
+                break;
+        }
+        if (intent != null) {
+            intent.putExtra("type", 1);
+            startActivity(intent);
+        }
+    }
+
+    private void initEvent() {
+        //message_linear.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        Intent intent = null;
+        switch (view.getId()) {
+            case R.id.study_message_linear:
+//                intent = new Intent(mContext, MessageAlertActivity.class);
+//                startActivity(intent);
+                break;
+            case R.id.study_message_left_tv:
+            case R.id.study_message_back:
+                close();
+                break;
+            case R.id.study_message_right_icon:
+                intent = new Intent(mContext, ReleaseActivity.class);
+                startActivityForResult(intent, REQ_RELEASE);
+                break;
+            case R.id.study_sapce_jia_img:
+                if (!isCareCanClick && System.currentTimeMillis() - last_click_time < 3000) {
+                    return;
+                }
+                isCareCanClick = false;
+                last_click_time = System.currentTimeMillis();
+                isCare = !isCare;
+                if (isCare) {
+                    img_care.setImageResource(R.mipmap.bt_quxiaoguanzhu_zhuye);
+                    addCare();
+                } else {
+                    img_care.setImageResource(R.mipmap.bt_jiaguanzhu_zhuye);
+                    cancelCare();
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        close();
+    }
+
+    private void close() {
+        Intent intent = new Intent();
+        intent.putExtra("del", isdel);
+        setResult(RESULT_OK, intent);
+        this.finish();
+    }
+
+    private void cancelCare() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String sid = sharedPreferences.getString(Constant.ID_SPACE, "");
+                OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS);
+                client = builder.build();
+                Request request = new Request.Builder()
+                        .url(String.format(Constant.STUDY_CANCEL_CARE, sid, spaceid, "concern"))
+                        .delete()
+                        .build();
+                //Log.i("info", "取消关注参数=" + String.format(Constant.STUDY_CANCEL_CARE, sid, spaceid, "concern"));
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    Message message = new Message();
+                    message.what = 5;
+                    message.arg1 = response.code();
+                    message.obj = response.body().string();
+                    mHandler.sendMessage(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //mHandler.sendEmptyMessage(400);
+                }
+            }
+        }).start();
+    }
+
+    private void addCare() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+                String json = "";
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    String sid = sharedPreferences.getString(Constant.ID_SPACE, "");
+                    jsonObject.put("mainSpaceId", sid);
+                    jsonObject.put("subSpaceId", spaceid);
+                    jsonObject.put("relationType", "concern");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                json = jsonObject.toString();
+                //Log.i("info", "添加关注参数=" + json);
+                RequestBody body = RequestBody.create(JSON, json);
+                OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                        .connectTimeout(10, TimeUnit.SECONDS)
+                        .writeTimeout(60, TimeUnit.SECONDS)
+                        .readTimeout(60, TimeUnit.SECONDS);
+                client = builder.build();
+                Request request = new Request.Builder()
+                        .url(Constant.STUDY_ADD_CARE)
+                        .post(body)
+                        .build();
+                Response response = null;
+                try {
+                    response = client.newCall(request).execute();
+                    Message message = new Message();
+                    message.what = 4;
+                    message.arg1 = response.code();
+                    message.obj = response.body().string();
+                    mHandler.sendMessage(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //mHandler.sendEmptyMessage(400);
+                }
+            }
+        }).start();
+    }
+
+    public void execute(String spaceId, int page, int page_size) {
+        String url = String.format(Constant.STUDY_MY_PAGE, spaceId, page, page_size);
+        // Log.i("info", "请求个人主页路径=" + url);
+        final Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        //client = new OkHttpClient();
+        int cacheSize = 10 * 1024 * 1024;
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .cache(new Cache(getSDPath(), cacheSize));
+        client = builder.build();
+        client.newCall(request).enqueue(new Callback() {
+                                            @Override
+                                            public void onFailure(Call call, IOException e) {
+                                                // Log.i("info", "请求数据失败" + e.getMessage());
+                                                mHandler.sendEmptyMessage(404);
+                                            }
+
+                                            @Override
+                                            public void onResponse(Call call, final Response response) throws IOException {
+                                                if (response.isSuccessful()) {
+                                                    //  Log.i("info", "请求数据,返回成功！");
+                                                    Message message = new Message();
+                                                    message.what = 1;
+                                                    message.obj = response.body().string();
+                                                    mHandler.sendMessage(message);
+                                                } else {
+                                                    mHandler.sendEmptyMessage(404);
+                                                }
+                                            }
+                                        }
+
+        );
+    }
+
+    public File getSDPath() {
+        File sdDir = null;
+        boolean sdCardExist = Environment.getExternalStorageState()
+                .equals(Environment.MEDIA_MOUNTED); //判断sd卡是否存在
+        File file = null;
+        if (sdCardExist) {
+            sdDir = Environment.getExternalStorageDirectory();//获取跟目录
+            file = new File(sdDir + "/" + Constant.APP_DIR_NAME);
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+        }
+        return file;
+    }
+
+    public String removeBOM(String data) {
+        if (TextUtils.isEmpty(data)) {
+            return data;
+        }
+        if (data.startsWith("\ufeff")) {
+            return data.substring(1);
+        } else {
+            return data;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_RELEASE) {
+                Bundle bundle = data.getExtras();
+                boolean del = false;
+                if (bundle != null) {
+                    del = bundle.getBoolean("del", false);
+                    isdel = del;
+                }
+                if (!del) {
+                    loadData();
+                } else {
+                    if (cur_index != -1) {
+                        listMessage.remove(cur_index);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            } else if (requestCode == REQ_COMMENT_COUNT) {
+                Bundle bundle = data.getExtras();
+                boolean load = bundle.getBoolean("load");
+                if (load) {
+                    int index = bundle.getInt("index");
+                    int count = bundle.getInt("count");
+                    int liked = bundle.getInt("liked");
+                    boolean flag = bundle.getBoolean("click");
+                    StudyMessageItem item = listMessage.get(index);
+                    item.setCommented(count);
+                    item.setLiked(liked);
+                    item.setIsClickLiked(flag);
+                    listMessage.set(index, item);
+                    adapter.notifyDataSetChanged();
+                }
+            } else if (requestCode == REQ_DEL) {
+                Bundle bundle = data.getExtras();
+                if (bundle != null) {
+                    boolean isdel = bundle.getBoolean("del", false);
+                    if (isdel) {
+                        img_anim.setVisibility(View.VISIBLE);
+                        anim.start();
+                        loadData();
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (NetWorkUtils.isNetworkAvailable(UIUtils.getContext())) {
+            if (pull.getCurrentState() == PullToRefreshLayout.REFRESHING) {
+                pages = 1;
+                loadData();
+            } else if (pull.getCurrentState() == PullToRefreshLayout.LOADING) {
+                if (listMessage.size() == 0) {
+                    pages = 1;
+                    loadData();
+                } else if (listMessage.size() >= total) {
+                    pull.loadmoreFinish(PullToRefreshLayout.SUCCEED);
+                } else if (listMessage.size() < total) {
+                    pages++;
+                    loadData();
+                }
+            }
+        }
+        return true;
+    }
+}
+
+

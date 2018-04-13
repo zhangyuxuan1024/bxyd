@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="9dp"
+        android:layout_marginTop="9dp">
+
+        <net.iclassmate.xydspace.view.study.ShapeImageView
+            android:id="@+id/chat_list_icon"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
+            android:scaleType="centerInside"
+            android:background="@mipmap/moren_geren_xiaoxi"/>
+
+        <com.jauker.widget.BadgeView
+            android:id="@+id/chat_badgeview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/chat_list_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="7dp"
+            android:layout_marginTop="11dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="name"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/chat_list_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="message"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/chat_list_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:text="上午8:35"
+        android:textColor="#ccccd2"
+        android:textSize="12sp" />
+
+</LinearLayout>

@@ -1,0 +1,94 @@
+package net.iclassmate.xydspace.adapter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.index.PersonInfo;
+
+import java.util.List;
+
+/**
+ * Created by xydbj on 2016/11/16.
+ */
+public class SignAdapter extends BaseAdapter {
+    private Context context;
+    private List<PersonInfo> list;
+
+    private View.OnClickListener imgMaleClick;
+    private View.OnClickListener imgFemaleClick;
+
+    public SignAdapter(Context context, List<PersonInfo> list) {
+        this.context = context;
+        this.list = list;
+    }
+
+    @Override
+    public int getCount() {
+        int ret = 0;
+        if (list != null) {
+            ret = list.size();
+        }
+        return ret;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return list.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder = null;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(context).inflate(R.layout.item_sign_up, parent, false);
+            holder = new ViewHolder();
+            holder.img_male = (ImageView) convertView.findViewById(R.id.img_male);
+            holder.img_female = (ImageView) convertView.findViewById(R.id.img_female);
+            holder.et_name = (EditText) convertView.findViewById(R.id.sign_et_name);
+            holder.et_phone = (EditText) convertView.findViewById(R.id.sign_et_phone);
+            holder.et_id = (EditText) convertView.findViewById(R.id.sign_et_id);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        PersonInfo info = list.get(position);
+        if (info.isMaleSelect()) {
+            holder.img_male.setImageResource(R.mipmap.ic_checked);
+            holder.img_female.setImageResource(R.mipmap.ic_unchecked);
+        } else {
+            holder.img_male.setImageResource(R.mipmap.ic_unchecked);
+            holder.img_female.setImageResource(R.mipmap.ic_checked);
+        }
+
+        holder.img_male.setTag(position);
+        holder.img_male.setOnClickListener(imgMaleClick);
+        holder.img_female.setTag(position);
+        holder.img_female.setOnClickListener(imgFemaleClick);
+        return convertView;
+    }
+
+    public void setImgMaleClick(View.OnClickListener imgMaleClick) {
+        this.imgMaleClick = imgMaleClick;
+    }
+
+    public void setImgFemaleClick(View.OnClickListener imgFemaleClick) {
+        this.imgFemaleClick = imgFemaleClick;
+    }
+
+    class ViewHolder {
+        EditText et_name, et_phone, et_id;
+        ImageView img_male, img_female;
+    }
+}

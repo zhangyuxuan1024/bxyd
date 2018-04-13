@@ -1,0 +1,36 @@
+package net.iclassmate.xydspace.utils;
+
+import android.app.Activity;
+import android.content.Context;
+import android.media.MediaPlayer;
+import android.support.v4.app.FragmentActivity;
+
+import net.iclassmate.xydspace.R;
+
+/**
+ * Created by xydbj on 2016/10/19.
+ */
+public class NoticeUtills {
+    /**
+     * song:是否有声音
+     * shoch：是否有震动
+     */
+    public static void soundRing(Context context, boolean song, boolean shock) {
+        try {
+            if (song) {
+                MediaPlayer mPlayer = MediaPlayer.create(context, R.raw.water);
+                mPlayer.start();
+            }
+            if (shock) {
+                if (context instanceof Activity) {
+                    VibratorUtil.Vibrate((Activity) context, 500);   //震动500ms
+                } else if (context instanceof FragmentActivity) {
+                    VibratorUtil.Vibrate((FragmentActivity) context, 500);   //震动500ms
+                }
+            }
+        } catch (Exception e) {
+
+        }
+    }
+
+}

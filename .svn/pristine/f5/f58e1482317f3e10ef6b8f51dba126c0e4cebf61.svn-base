@@ -1,0 +1,189 @@
+package net.iclassmate.xydspace.ui.activity.constacts;
+
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.bean.contacts.Contacts;
+import net.iclassmate.xydspace.view.IndexBar;
+import net.iclassmate.xydspace.view.TitleBar;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PhoneContactActivity extends Activity  implements TitleBar.TitleOnClickListener {
+
+
+    private TitleBar titleBar;
+    private Context mContext;
+    private IndexBar bar;
+    private ListView lv;
+    private TextView tvShow;
+    String[] PHONES_PROJECTION = new String[]{ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.NUMBER, "sort_key"};
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_phone_contact);
+        mContext = this;
+        initPhoneNumber();
+        initView();
+
+    }
+
+    private void initPhoneNumber() {
+        TelephonyManager tm = (TelephonyManager) this
+                .getSystemService(TELEPHONY_SERVICE);
+        String tel = tm.getLine1Number();
+        ContentResolver resolver = getContentResolver();
+        // 获取手机联系人
+        Cursor c = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, PHONES_PROJECTION, null,
+                null, "sort_key COLLATE LOCALIZED asc");
+        Contacts bean = null;
+        char sortKey = ' ';
+        while (c.moveToNext()) {
+            bean = new Contacts();
+            bean.name = c.getString(0);
+            bean.number = c.getString(1).replace(" ", "");
+            char ch = c.getString(2).toUpperCase().charAt(0);
+            if (ch >= 65 && ch <= 90) {
+                bean.sortKey = ch;
+            } else {
+                bean.sortKey = '#';
+            }
+            if (sortKey != bean.sortKey) {
+                sortKey = bean.sortKey;
+                bean.isHead = true;
+            }
+            beans.add(bean);
+        }
+        c.close();
+    }
+
+    private void initView() {
+        titleBar = (TitleBar) findViewById(R.id.phonecontacts_title_bar);
+        bar = (IndexBar) findViewById(R.id.phone_contacts_lb);
+        tvShow = (TextView) findViewById(R.id.phone_contacts_tvShow);
+
+        titleBar.setLeftIcon("取消");
+        titleBar.setTitle("手机通讯录");
+        titleBar.setTitleClickListener(this);
+
+
+        lv = getListView();
+        lv.setAdapter(new MyAdapter());
+        bar.setOnIndexSelectedListener(new IndexBar.OnIndexSelectedListener() {
+            @Override
+            public void indexSelected(char index) {
+                tvShow.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void indexChange(char index) {
+                tvShow.setVisibility(View.VISIBLE);
+                tvShow.setText(index + "");
+                for (int i = 0; i < beans.size(); i++) {
+                    if (beans.get(i).isHead && beans.get(i).sortKey == index) {
+                        lv.setSelection(i);
+                        return;
+                    }
+                }
+                for (int i = 0; i < beans.size(); i++) {
+                    if (beans.get(i).isHead && beans.get(i).sortKey > index) {
+                        lv.setSelection(i);
+                        return;
+                    }
+                }
+                lv.setSelection(beans.size() - 1);
+            }
+        });
+    }
+
+    @Override
+    public void leftClick() {
+        finish();
+    }
+
+    @Override
+    public void rightClick() {
+
+    }
+
+    @Override
+    public void titleClick() {
+
+    }
+
+    @Override
+    public void innerleftClick() {
+
+    }
+
+    @Override
+    public void innerRightClick() {
+
+    }
+
+
+    List<Contacts> beans = new ArrayList<Contacts>();
+
+    public ListView getListView() {
+        return (ListView) findViewById(R.id.phone_contacts_lv);
+    }
+
+    class MyAdapter extends BaseAdapter {
+        LayoutInflater inflater;
+
+        {
+            inflater = LayoutInflater.from(PhoneContactActivity.this);
+        }
+
+        @Override
+        public int getCount() {
+            return beans.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return beans.get(i);
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return 0;
+        }
+
+        TextView tvName;
+        ImageView imageIcon;
+        Button btnCall;
+
+        @Override
+        public View getView(int i, View v, ViewGroup vg) {
+            v = inflater.inflate(R.layout.contacts_item, null);
+            tvName = (TextView) v.findViewById(R.id.contacts_person_name);
+            imageIcon = (ImageView) v.findViewById(R.id.contacts_person_icon);
+            tvName.setText(beans.get(i).name);
+            if (beans.get(i).isHead) {
+                v.findViewById(R.id.llShowIndex).setVisibility(View.VISIBLE);
+                ((TextView) v.findViewById(R.id.tvIndex)).setText(""
+                        + beans.get(i).sortKey);
+            }
+            return v;
+        }
+
+    }
+}

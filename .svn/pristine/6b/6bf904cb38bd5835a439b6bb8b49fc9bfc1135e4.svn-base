@@ -1,0 +1,256 @@
+package net.iclassmate.xydspace.ui.activity;
+
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.adapter.MainFragmentAdapter;
+import net.iclassmate.xydspace.ui.activity.chat.SelectContactsActivity;
+import net.iclassmate.xydspace.ui.activity.constacts.ContactsActivity;
+import net.iclassmate.xydspace.ui.fragment.FunctionFragment;
+import net.iclassmate.xydspace.ui.fragment.MessageFragment;
+import net.iclassmate.xydspace.ui.fragment.OwnerFragment;
+import net.iclassmate.xydspace.ui.fragment.StudySpaceFragment;
+import net.iclassmate.xydspace.utils.UIUtils;
+import net.iclassmate.xydspace.view.MainViewPager;
+import net.iclassmate.xydspace.view.PopMenu;
+import net.iclassmate.xydspace.view.TitleBar;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import io.rong.imlib.RongIMClient;
+
+
+public class MainActivity extends FragmentActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+    private Context mContext;
+    private List<Fragment> fragments;
+    private ImageView image_message, image_space, image_function, image_owner;
+    private MainViewPager main_viewPager;
+    private MainFragmentAdapter mainFragmentAdapter;
+    private TitleBar titleBar;
+    private PopMenu popMenu;
+
+    public static final int REQ_CHAT = 1;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 1:
+                    Toast.makeText(mContext, "您的该帐号，已经在其他客户端登录！您已被迫下线，请及时修改密码！", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.activity_main);
+        mContext = this;
+
+        initView();
+        RongIMClient.getInstance().setConnectionStatusListener(new MyConnectionStatusListener());
+    }
+
+    private void initView() {
+        image_message = (ImageView) findViewById(R.id.main_iv_message);
+        image_space = (ImageView) findViewById(R.id.main_iv_space);
+        image_function = (ImageView) findViewById(R.id.main_iv_function);
+        image_owner = (ImageView) findViewById(R.id.main_iv_owner);
+        main_viewPager = (MainViewPager) findViewById(R.id.main_ViewPager);
+        titleBar = (TitleBar) findViewById(R.id.main_title_bar);
+        popMenu = new PopMenu(this);
+//        popMenu.addItems(new String[]{"发起聊天"});
+//        popMenu.addIcons(new int[]{R.mipmap.ic_liaotian});
+        popMenu.addItem("发起聊天");
+        popMenu.addIcon(R.mipmap.ic_liaotian);
+        popMenu.setOnItemClickListener(popmenuItemClickListener);
+
+        main_viewPager.setNoScroll(true);
+        mainTvSelected(0);
+
+        image_message.setOnClickListener(this);
+        image_space.setOnClickListener(this);
+        image_function.setOnClickListener(this);
+        image_owner.setOnClickListener(this);
+
+        initFragments();
+    }
+
+    private void initFragments() {
+        fragments = new ArrayList<Fragment>();
+        fragments.add(new MessageFragment());
+        fragments.add(new FunctionFragment());
+        fragments.add(new StudySpaceFragment());
+        fragments.add(new OwnerFragment());
+        mainFragmentAdapter = new MainFragmentAdapter(getSupportFragmentManager(), fragments);
+        main_viewPager.setAdapter(mainFragmentAdapter);
+        main_viewPager.setOnPageChangeListener(this);
+        main_viewPager.setOffscreenPageLimit(3);
+        main_viewPager.setCurrentItem(0);
+    }
+
+    public void mainTvSelected(int index) {
+        image_message.setSelected(false);
+        image_space.setSelected(false);
+        image_function.setSelected(false);
+        image_owner.setSelected(false);
+        if (index == 0) {
+            image_message.setSelected(true);
+            titleBar.setTitle(getResources().getString(R.string.main_title_message));
+            //titleBar.setRightIcon(R.mipmap.ic_jiahao);
+            //titleBar.setInnerRightIcon(R.mipmap.ic_tongxunlu);
+            titleBar.setRightIcon(R.mipmap.ic_tongxunlu);
+            titleBar.setTitleClickListener(new TitleBar.TitleOnClickListener() {
+                @Override
+                public void leftClick() {
+
+                }
+
+                @Override
+                public void rightClick() {
+                    //popMenu.showAsDropDown(titleBar.getRightIcon());
+                    Intent toContacts = new Intent(UIUtils.getContext(), ContactsActivity.class);
+                    startActivityForResult(toContacts, REQ_CHAT);
+                }
+
+                @Override
+                public void titleClick() {
+
+                }
+
+                @Override
+                public void innerleftClick() {
+
+                }
+
+                @Override
+                public void innerRightClick() {
+                    Intent toContacts = new Intent(UIUtils.getContext(), ContactsActivity.class);
+                    startActivityForResult(toContacts, REQ_CHAT);
+                }
+            });
+        } else if (index == 1) {
+            image_function.setSelected(true);
+            titleBar.setTitle(getResources().getString(R.string.main_title_function_2));
+            titleBar.setRightIconEmpty();
+            titleBar.setInnerRightIconEmpty();
+        } else if (index == 2) {
+            image_space.setSelected(true);
+            titleBar.setTitle(getResources().getString(R.string.main_title_space_2));
+            titleBar.setRightIconEmpty();
+            titleBar.setInnerRightIconEmpty();
+        } else if (index == 3) {
+            image_owner.setSelected(true);
+            titleBar.setTitle(getResources().getString(R.string.main_title_owner));
+            titleBar.setRightIconEmpty();
+            titleBar.setInnerRightIconEmpty();
+
+        }
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        int index = 0;
+        switch (id) {
+            case R.id.main_iv_message:
+                index = 0;
+                break;
+            case R.id.main_iv_function:
+                index = 1;
+                break;
+            case R.id.main_iv_space:
+                index = 2;
+                break;
+            case R.id.main_iv_owner:
+                index = 3;
+                break;
+        }
+        main_viewPager.setCurrentItem(index);
+        mainTvSelected(index);
+    }
+
+    // 弹出菜单监听器
+    AdapterView.OnItemClickListener popmenuItemClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (position == 0) {
+                Intent intent = new Intent(UIUtils.getContext(), SelectContactsActivity.class);
+                intent.putExtra("from", "newGroup");
+                startActivityForResult(intent, REQ_CHAT);
+            }
+            popMenu.dismiss();
+        }
+    };
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        mainTvSelected(position);
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        int index = main_viewPager.getCurrentItem();
+        if (index != 0) {
+            return;
+        }
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_CHAT) {
+                MessageFragment fragment = (MessageFragment) fragments.get(0);
+                fragment.getData(true);
+            }
+        }
+    }
+
+    private class MyConnectionStatusListener implements RongIMClient.ConnectionStatusListener {
+        @Override
+        public void onChanged(ConnectionStatus connectionStatus) {
+            switch (connectionStatus) {
+                case CONNECTED://连接成功。
+                    break;
+                case DISCONNECTED://断开连接。
+                    break;
+                case CONNECTING://连接中。
+                    break;
+                case NETWORK_UNAVAILABLE://网络不可用。
+                    break;
+                case KICKED_OFFLINE_BY_OTHER_CLIENT://用户账户在其他设备登录，本机会被踢掉线
+                    RongIMClient.getInstance().disconnect();
+                    RongIMClient.getInstance().logout();
+                    Intent intent = new Intent(mContext, LoginActivity.class);
+                    mContext.startActivity(intent);
+                    finish();
+                    mHandler.sendEmptyMessage(1);
+                    break;
+            }
+        }
+    }
+}

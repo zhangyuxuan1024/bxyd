@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="49dp"
+    android:orientation="vertical">
+    <!--android:background="@drawable/background_gridview_item"-->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="49dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/background_gridview_item">
+
+
+        <ImageView
+            android:id="@+id/mygridview_item_iv"
+            android:layout_width="42dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_17" />
+
+        <TextView
+            android:id="@+id/mygridview_item_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/mygridview_item_iv"
+            android:layout_marginLeft="10.5dp"
+            android:maxLines="1"
+            android:maxLength="20"
+            android:text="压缩包"
+            android:textColor="#8c8c98" />
+
+        <ImageView
+            android:id="@+id/mygridview_item_iv_xuanze"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="15dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="5dp"
+            android:paddingTop="5dp"
+            android:src="@mipmap/ic_weixuanze_wangpan"
+            android:visibility="invisible" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

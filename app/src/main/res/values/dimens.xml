@@ -1,0 +1,40 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="title_bar_height">44dp</dimen>
+    <dimen name="popmenu_width">139.0dp</dimen>
+    <dimen name="popmenu_height">76.0dp</dimen>
+    <dimen name="popmenu_yoff">10.0dp</dimen>
+    <dimen name="popmenu_xoff">-80.0dp</dimen>
+    <dimen name="nav_title_text_size">20sp</dimen>
+    <dimen name="tv_11">11sp</dimen>
+    <dimen name="tv_15">15sp</dimen>
+    <dimen name="tv_16">16sp</dimen>
+
+    <dimen name="anim_width">128dp</dimen>
+    <dimen name="anim_height">132dp</dimen>
+    <dimen name="view_5">5dp</dimen>
+    <dimen name="view_10">10dp</dimen>
+    <dimen name="view_15">15dp</dimen>
+    <dimen name="view_16">16dp</dimen>
+    <dimen name="view_81">81dp</dimen>
+    <dimen name="view_30">30dp</dimen>
+    <dimen name="view_31">31dp</dimen>
+    <dimen name="view_34">34dp</dimen>
+    <dimen name="view_40">40dp</dimen>
+    <dimen name="view_43">43dp</dimen>
+    <dimen name="view_44">44dp</dimen>
+    <dimen name="view_90">90dp</dimen>
+    <dimen name="view_109">109dp</dimen>
+    <dimen name="view_120">120dp</dimen>
+    <dimen name="view_135">135dp</dimen>
+    <dimen name="view_156">156dp</dimen>
+    <dimen name="view_143">143dp</dimen>
+    <dimen name="view_173">173dp</dimen>
+    <dimen name="view_179">179dp</dimen>
+    <dimen name="view_480">480dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="tab_font_size">14.0sp</dimen>
+</resources>

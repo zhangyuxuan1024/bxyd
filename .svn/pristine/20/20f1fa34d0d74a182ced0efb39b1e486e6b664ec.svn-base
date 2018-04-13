@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#f5f5f9"
+    android:orientation="vertical"
+    tools:context=".ui.activity.constacts.ContactsActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/titlebar_color">
+        <net.iclassmate.xydspace.view.TitleBar
+            android:id="@+id/contacts_title_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/title_bar_height"
+            android:layout_marginRight="8dp"/>
+    </LinearLayout>
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/contacts_group_layout"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_below="@+id/contacts_title_bar"
+                android:layout_marginTop="10dp"
+                android:background="@color/white">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#efefef" />
+
+                <ImageView
+                    android:id="@+id/contacts_group_icon"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="15dp"
+                    android:background="@mipmap/ic_qunzu_tongxunlu"
+                    android:contentDescription="@string/app_name" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/contacts_group_icon">
+
+                    <TextView
+                        android:id="@+id/contacts_group_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="空间"
+                        android:textColor="#202025"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/contacts_organization_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/contacts_group_name"
+                        android:text="机构"
+                        android:textColor="#8c8c98"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/contacts_group_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/contacts_group_name"
+                        android:layout_marginLeft="10dp"
+                        android:layout_toRightOf="@+id/contacts_organization_count"
+                        android:text="群组"
+                        android:textColor="#8c8c98"
+                        android:textSize="13sp" />
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/contacts_group_next"
+                    android:layout_width="11dp"
+                    android:layout_height="21dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="15dp"
+                    android:background="@mipmap/jiantou" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="#efefef" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/contacts_discussion_layout"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_below="@+id/contacts_title_bar"
+                android:layout_marginTop="0.5dp"
+                android:background="@color/white">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#efefef" />
+
+                <ImageView
+                    android:id="@+id/contacts_discussion_icon"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="15dp"
+                    android:background="@mipmap/ic_qunliao"
+                    android:contentDescription="@string/app_name" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/contacts_discussion_icon">
+
+                    <TextView
+                        android:id="@+id/contacts_discussion_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="群聊"
+                        android:textColor="#202025"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/contacts_discussion_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/contacts_discussion_name"
+                        android:text="群组"
+                        android:textColor="#8c8c98"
+                        android:textSize="13sp" />
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/contacts_discussion_next"
+                    android:layout_width="11dp"
+                    android:layout_height="21dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="15dp"
+                    android:background="@mipmap/jiantou" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="#efefef" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/cont_noLoading"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ListView
+                    android:id="@+id/contacts_lv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_toLeftOf="@+id/contacts_lb"
+                    android:layout_weight="1"
+                    android:divider="#efefef"
+                    android:dividerHeight="1dp"
+                    android:scrollbars="none" />
+
+                <net.iclassmate.xydspace.view.IndexBar
+                    android:id="@+id/contacts_lb"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="60dp"
+                    android:layout_marginTop="60dp" />
+
+                <TextView
+                    android:id="@+id/contacts_tvShow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/show_bg"
+                    android:gravity="center"
+                    android:text="A"
+                    android:textColor="#fff"
+                    android:textSize="36sp"
+                    android:visibility="gone" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <include
+            android:id="@+id/loading_layout"
+            layout="@layout/loadinglayout" />
+
+        <ImageView
+            android:id="@+id/img_no_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@mipmap/img_yemianjiazaishibai"
+            android:visibility="gone" />
+
+        <include layout="@layout/message_no_friend" />
+    </FrameLayout>
+</LinearLayout>

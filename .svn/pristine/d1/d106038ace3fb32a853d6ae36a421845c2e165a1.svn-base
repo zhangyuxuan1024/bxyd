@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="74dp"
+        android:background="@color/white">
+        <ImageView
+            android:id="@+id/item_mynetdisk_iv"
+            android:layout_width="46.5dp"
+            android:layout_height="46.5dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ic_wodewangpan"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="我的网盘"
+            android:layout_toRightOf="@+id/item_mynetdisk_iv"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="12.5dp"
+            android:textSize="16sp"
+            android:textColor="#202025"/>
+        <ImageView
+            android:layout_width="15.5dp"
+            android:layout_height="15.5dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="8.5dp"
+            android:src="@mipmap/ic_next"
+            android:layout_centerVertical="true"/>
+    </RelativeLayout>
+
+</LinearLayout>

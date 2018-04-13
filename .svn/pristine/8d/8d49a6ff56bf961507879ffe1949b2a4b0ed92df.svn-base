@@ -1,0 +1,41 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbars="none"
+    android:background="#f5f5f9"
+    tools:context="net.iclassmate.xydspace.ui.fragment.IndexFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:visibility="gone"/>
+
+        <com.stx.xhb.xbanner.XBanner xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/main_xBanner"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            app:AutoPlayTime="3000"
+            app:pointNormal="@mipmap/ic_huidian_banner"
+            app:pointSelect="@mipmap/ic_landian_banner"
+            app:pointsPosition="CENTER" />
+
+        <net.iclassmate.xydspace.view.FullListView
+            android:id="@+id/listview_index_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:divider="#efefef"
+            android:dividerHeight="1dp"
+            android:scrollbars="none" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp" />
+    </LinearLayout>
+</ScrollView>

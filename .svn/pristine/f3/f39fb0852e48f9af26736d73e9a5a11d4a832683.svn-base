@@ -1,0 +1,145 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context="net.iclassmate.xydspace.ui.activitys.study.TraStudyActivity">
+
+    <include layout="@layout/study_title" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/save_container_linear"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <net.iclassmate.xydspace.view.FullListView
+                        android:id="@+id/study_sapce_msg_listview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="5dp"
+                        android:background="@color/white"
+                        android:divider="#efefef"
+                        android:dividerHeight="1dp"
+                        android:scrollbars="none" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:layout_marginTop="14dp"
+                        android:background="#efefef"
+                        android:gravity="right"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/comment_tv_com"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="32dp"
+                            android:gravity="center_vertical"
+                            android:text="评论"
+                            android:textColor="#888"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/comment_tv_tra"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="34dp"
+                            android:gravity="center_vertical"
+                            android:text="转发"
+                            android:textColor="#888"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/comment_tv_great"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="32dp"
+                            android:gravity="center_vertical"
+                            android:text="赞"
+                            android:textColor="#888"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:background="@color/white" />
+
+                    <net.iclassmate.xydspace.view.FullListView
+                        android:id="@+id/comment_listview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginTop="3dp"
+                        android:divider="@color/white"
+                        android:dividerHeight="1dp"
+                        android:scrollbars="none" />
+                </LinearLayout>
+
+                <include layout="@layout/loding_anim" />
+
+                <ImageView
+                    android:id="@+id/img_no_exist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@mipmap/img_yishanchu"
+                    android:visibility="gone" />
+            </FrameLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="39dp"
+        android:background="#7000"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/comment_com_img"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|left"
+            android:paddingLeft="15dp"
+            android:paddingRight="30dp"
+            android:src="@mipmap/ic_review" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/comment_like_img"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|right"
+            android:paddingLeft="30dp"
+            android:paddingRight="15dp"
+            android:src="@mipmap/ic_great" />
+    </LinearLayout>
+</LinearLayout>

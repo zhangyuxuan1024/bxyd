@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="73dp"
+    android:background="@color/white">
+
+    <net.iclassmate.bxyd.view.study.ShapeImageView
+        android:id="@+id/add_contacts_list_icon"
+        android:layout_width="43dp"
+        android:layout_height="43dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="15dp"
+        android:background="@mipmap/moren_geren_xiaoxi" />
+
+    <TextView
+        android:id="@+id/add_contacts_list_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@+id/add_contacts_list_icon"
+        android:textColor="#202025"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/add_contacts_list_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/add_contacts_list_name"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/add_contacts_list_icon"
+        android:text="message"
+        android:textColor="#8c8c98"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/add_contacts_list_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/add_contacts_list_tv"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/add_contacts_list_icon"
+        android:textColor="#ccccd2"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/add_contacts_list_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#ccccd2"
+        android:textSize="12sp" />
+
+    <Button
+        android:id="@+id/add_contacts_list_agree_btn"
+        android:layout_width="44dp"
+        android:layout_height="21dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/add_contacts_list_time"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/agree_request_selector" />
+
+    <TextView
+        android:id="@+id/add_contacts_list_agreed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/add_contacts_list_time"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:text="已同意"
+        android:textColor="#8c8c98"
+        android:textSize="12sp"
+        android:visibility="gone" />
+</RelativeLayout>

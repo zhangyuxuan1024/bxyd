@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageicon_iv_bigimg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#7f000000"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageicon_iv_back"
+            android:layout_width="10dp"
+            android:layout_height="20.5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="12dp"
+            android:src="@mipmap/ic_fanhui" />
+
+        <TextView
+            android:id="@+id/imageicon_tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6.5dp"
+            android:layout_marginTop="12dp"
+            android:layout_toRightOf="@+id/imageicon_iv_back"
+            android:text="返回"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <net.iclassmate.xydspace.view.CircleImageView
+            android:id="@+id/imageicon_iv_img"
+            android:layout_width="219dp"
+            android:layout_height="219dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="164.5dp"
+            android:src="@mipmap/ic_touxiang_mingpian"/>
+
+        <ImageView
+            android:id="@+id/imageicon_iv_change"
+            android:layout_width="171.5dp"
+            android:layout_height="38.5dp"
+            android:layout_below="@+id/imageicon_iv_img"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="72dp"
+            android:src="@drawable/change_imageicon_selector" />
+    </RelativeLayout>
+
+</FrameLayout>

@@ -1,0 +1,60 @@
+package net.iclassmate.xydspace.ui.fragment.tran;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+
+import net.iclassmate.xydspace.R;
+import net.iclassmate.xydspace.adapter.teachlearn.FragmentTranAdapter;
+import net.iclassmate.xydspace.bean.attention.Attention;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by xydbj on 2016.7.17.
+ */
+public class UpLoadFragment extends LazyFragment {
+
+    private ListView lv;
+    private List<Attention> list;
+    private FragmentTranAdapter adapter;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_upload, container, false);
+        initView(view);
+        return view;
+    }
+
+    public void initView(View view) {
+        lv = (ListView) view.findViewById(R.id.fragment_upload_lv);
+        list = new ArrayList<>();
+        adapter = new FragmentTranAdapter(getActivity(), list);
+        lv.setAdapter(adapter);
+
+//        setData();
+    }
+
+    public void setData() {
+        Attention attention = null;
+        for (int i = 0; i < 8; i++) {
+            attention = new Attention();
+            attention.setUserName("英语讲义第" + (i + 1) + "卷");
+            list.add(attention);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void lazyLoad() {
+
+    }
+
+    @Override
+    public String getFragmentTitle() {
+        return "上传列表";
+    }
+}
